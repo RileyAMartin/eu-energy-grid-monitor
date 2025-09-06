@@ -1,0 +1,5 @@
+lxml
+kafka-python
+python-dateutil
+python-dotenv
+requests

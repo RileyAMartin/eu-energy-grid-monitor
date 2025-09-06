@@ -1,0 +1,5 @@
+.env
+.venv
+docs
+photos
+__pycache__
