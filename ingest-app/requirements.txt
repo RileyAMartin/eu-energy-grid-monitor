@@ -1,5 +1,5 @@
 lxml
-kafka-python
+confluent-kafka
 python-dateutil
 python-dotenv
 requests
