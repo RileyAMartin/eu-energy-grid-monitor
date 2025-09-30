@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
+from exceptions import InvalidIntervalError
 from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
 import json
 import logging
 
-class BassIngestor(ABC):
+class BaseIngestor(ABC):
     """An abstract base class for all ENTSO-E ingestion services."""
 
     def __init__(self, producer, eic_code, fetcher):
@@ -35,22 +36,27 @@ class BassIngestor(ABC):
     def _increment_query_duration(self) -> None:
         """Updates the query duration upon an invalid XML response from the API."""
         if self._config["query_duration_minutes"] == 15:
-            self._config["query_duration_minutes"] = 30
+            new_duration = 30
         elif self._config["query_duration_minutes"] == 30:
-            self._config["query_duration_minutes"] = 60
+            new_duration = 60
+        self._config["query_duration_minutes"] = new_duration
+        self._config["query_start_time"] = self._get_latest_min_interval(self, new_duration)
         return
 
-    def _get_latest_15min_interval() -> tuple[datetime, datetime]:
-        """Returns the most recent 15 minute interval, depending on the current time."""
+    def _get_latest_min_interval(self, mins) -> tuple[datetime, datetime]:
+        """Returns the most recent time interval for the given amount of minutes.
+            The interval will always be neatly divisible, depending on the amount of minutes.
+            (E.g. 30 mins will only return times of xx:00 and xx:30).
+        """
         now_utc = datetime.now(timezone.utc)
-        minutes_to_subtract = now_utc.minute % 15
+        minutes_to_subtract = now_utc.minute % mins
 
         end_of_interval = now_utc - relativedelta(
             minutes=minutes_to_subtract,
             seconds=now_utc.second,
             microseconds=now_utc.microsecond
         )
-        start_of_interval = end_of_interval - relativedelta(minutes=15)
+        start_of_interval = end_of_interval - relativedelta(minutes=mins)
 
         return start_of_interval, end_of_interval
 
@@ -65,11 +71,6 @@ class BassIngestor(ABC):
                 self._config['query_start_time'] + relativedelta(minutes='query_duration_minutes')
             )
             response = self._fetcher.fetch(url_to_fetch)
-
-            # Adjust the request time interval if it wasn't valid
-            if "Delivered time interval is not valid" in response:
-                logging.warning(f"Adapting duration for {self._eic_code} from {self._config["query_duration_minutes"]}mins.")
-                self._increment_query_duration()
 
             # Parse the data to get a list of events
             events = self._parse_response(response)
@@ -91,5 +92,9 @@ class BassIngestor(ABC):
             self._config['query_start_time'] += relativedelta(minutes=self._config['query_duration_minutes'])
             self._config['query_duration_minutes'] = 15
 
+        except InvalidIntervalError as e:
+            logging.error(f"Adapting duration for {self._eic_code} from {self._config["query_duration_minutes"]}mins.")
+            self._increment_query_duration()
+            return
         except Exception as e:
             logging.error(f"Unexpected error for EIC {self._eic_code}. Error: {e}")

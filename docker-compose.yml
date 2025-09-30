@@ -1,6 +1,6 @@
 services:
   ingest-app:
-    build: ./ingest-app
+    build: ./ingest_app
     restart: on-failure
     depends_on:
       - kafka
