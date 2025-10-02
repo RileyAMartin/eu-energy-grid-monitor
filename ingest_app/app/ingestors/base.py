@@ -2,20 +2,20 @@ from abc import ABC, abstractmethod
 from exceptions import InvalidIntervalError
 from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
+from confluent_kafka import KafkaProducer
+from api.client import BaseFetcher
+from configs import BaseQueryConfig
 import json
 import logging
 
 class BaseIngestor(ABC):
     """An abstract base class for all ENTSO-E ingestion services."""
 
-    def __init__(self, producer, eic_code, fetcher):
+    def __init__(self, producer: KafkaProducer, eic_code: str, fetcher: BaseFetcher, config: BaseQueryConfig):
         self._producer = producer
         self._eic_code = eic_code
         self._fetcher = fetcher
-        self._config = {
-            'query_duration_minutes': 15,
-            'query_start_time': self._get_latest_15min_interval()[0]
-        }
+        self._config = config
 
     @abstractmethod
     def _parse_response(self, response_content: str) -> list[dict]:
@@ -33,43 +33,14 @@ class BaseIngestor(ABC):
         """The Kafka topic to public messages to."""
         pass
 
-    def _increment_query_duration(self) -> None:
-        """Updates the query duration upon an invalid XML response from the API."""
-        if self._config["query_duration_minutes"] == 15:
-            new_duration = 30
-        elif self._config["query_duration_minutes"] == 30:
-            new_duration = 60
-        self._config["query_duration_minutes"] = new_duration
-        self._config["query_start_time"] = self._get_latest_min_interval(self, new_duration)
-        return
-
-    def _get_latest_min_interval(self, mins) -> tuple[datetime, datetime]:
-        """Returns the most recent time interval for the given amount of minutes.
-            The interval will always be neatly divisible, depending on the amount of minutes.
-            (E.g. 30 mins will only return times of xx:00 and xx:30).
-        """
-        now_utc = datetime.now(timezone.utc)
-        minutes_to_subtract = now_utc.minute % mins
-
-        end_of_interval = now_utc - relativedelta(
-            minutes=minutes_to_subtract,
-            seconds=now_utc.second,
-            microseconds=now_utc.microsecond
-        )
-        start_of_interval = end_of_interval - relativedelta(minutes=mins)
-
-        return start_of_interval, end_of_interval
-
     def _run_ingestion_cycle(self):
         """A single run of the ingestion logic for this EIC code."""
         logging.info("--- Starting new ingestion cycle ---")
 
         try:
             # Get the XML data from the ENTSO-E API
-            url_to_fetch = self._build_url(
-                self._config['query_start_time'],
-                self._config['query_start_time'] + relativedelta(minutes='query_duration_minutes')
-            )
+            start_time, end_time = self._config.get_time_window()
+            url_to_fetch = self._build_url(start_time, end_time)
             response = self._fetcher.fetch(url_to_fetch)
 
             # Parse the data to get a list of events
@@ -88,13 +59,6 @@ class BaseIngestor(ABC):
                     value=event_json
                 )
 
-            # Increment the start time and reset the query duration
-            self._config['query_start_time'] += relativedelta(minutes=self._config['query_duration_minutes'])
-            self._config['query_duration_minutes'] = 15
-
-        except InvalidIntervalError as e:
-            logging.error(f"Adapting duration for {self._eic_code} from {self._config["query_duration_minutes"]}mins.")
-            self._increment_query_duration()
-            return
         except Exception as e:
             logging.error(f"Unexpected error for EIC {self._eic_code}. Error: {e}")
+            self._config.report_failure(e)

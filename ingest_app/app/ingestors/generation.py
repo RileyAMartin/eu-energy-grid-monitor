@@ -1,5 +1,6 @@
 from datetime import datetime
 from base import BaseIngestor
+from parsers.generation import parse_generation_document
 
 class GenerationIngestor(BaseIngestor):
     """A class to handle ingestion from the Energy Generation By Type endpoint."""
@@ -15,7 +16,7 @@ class GenerationIngestor(BaseIngestor):
 
     def _parse_response(self, response_content: str) -> list[dict]:
         """Parses the XML response into a list of standardised records."""
-        pass
+        return parse_generation_document(response_content)
 
     def _build_url(self, start_time: datetime, end_time: datetime) -> str:
         """Returns a URL for the ENTSO-E API (sans the API key which must be added in an ApiFetcher.)"""
