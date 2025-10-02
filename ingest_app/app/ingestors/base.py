@@ -1,21 +1,22 @@
 from abc import ABC, abstractmethod
-from exceptions import InvalidIntervalError
-from datetime import datetime, timezone
-from dateutil.relativedelta import relativedelta
-from confluent_kafka import KafkaProducer
+from datetime import datetime
+from confluent_kafka import Producer
 from api.client import BaseFetcher
-from configs import BaseQueryConfig
+from exceptions import InvalidIntervalError, NoDataFoundError
+from .query_configs import BaseQueryConfig
 import json
 import logging
+import requests
 
 class BaseIngestor(ABC):
     """An abstract base class for all ENTSO-E ingestion services."""
 
-    def __init__(self, producer: KafkaProducer, eic_code: str, fetcher: BaseFetcher, config: BaseQueryConfig):
+    def __init__(self, producer: Producer, eic_code: str, fetcher: BaseFetcher, query_config: BaseQueryConfig, api_url: str):
         self._producer = producer
         self._eic_code = eic_code
         self._fetcher = fetcher
-        self._config = config
+        self._query_config = query_config
+        self._api_url = api_url
 
     @abstractmethod
     def _parse_response(self, response_content: str) -> list[dict]:
@@ -33,13 +34,11 @@ class BaseIngestor(ABC):
         """The Kafka topic to public messages to."""
         pass
 
-    def _run_ingestion_cycle(self):
+    def run_ingestion_cycle(self):
         """A single run of the ingestion logic for this EIC code."""
-        logging.info("--- Starting new ingestion cycle ---")
-
         try:
             # Get the XML data from the ENTSO-E API
-            start_time, end_time = self._config.get_time_window()
+            start_time, end_time = self._query_config.get_time_window()
             url_to_fetch = self._build_url(start_time, end_time)
             response = self._fetcher.fetch(url_to_fetch)
 
@@ -59,6 +58,19 @@ class BaseIngestor(ABC):
                     value=event_json
                 )
 
+        except InvalidIntervalError as e:
+            logging.warning(f"Invalid query duration for {self._eic_code}: {e}")
+            self._query_config.report_failure()
+        except NoDataFoundError as e:
+            logging.warning(f"ENTSO-E API found no data for {self._eic_code}.")
+        except requests.HTTPError as e:
+            if e.response.status_code in [401, 403]:
+                logging.critical(f"Authentication failed for {self._eic_code}.")
+            elif e.response.status_code >= 500:
+                logging.error(f"Server error (5xx) for {self._eic_code}.")
+            else:
+                logging.error(f"Client error ({e.response.status_code}) for {self._eic_code}.")
+        except requests.RequestException as e:
+            logging.error(f"Network request failed for {self._eic_code}.")
         except Exception as e:
             logging.error(f"Unexpected error for EIC {self._eic_code}. Error: {e}")
-            self._config.report_failure(e)

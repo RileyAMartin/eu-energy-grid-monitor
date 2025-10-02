@@ -1,8 +1,7 @@
-import logging
 from datetime import datetime
-
 from dateutil.relativedelta import relativedelta
 from lxml import etree
+import logging
 
 # XML namespace for Market Documents
 NSMAP = {"doc": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"}

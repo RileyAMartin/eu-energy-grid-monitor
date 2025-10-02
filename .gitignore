@@ -4,4 +4,6 @@ venv
 docs
 photos
 __pycache__
+.pytest_cache
 scripts
+TODO.txt

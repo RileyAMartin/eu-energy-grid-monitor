@@ -10,7 +10,6 @@ class BaseQueryConfig(ABC):
         """Returns the start and end datetime for the next API query, based on the current time."""
         pass
 
-    @abstractmethod
     def report_failure(self, error: Exception):
         """
         Updates the config based on the given exception.

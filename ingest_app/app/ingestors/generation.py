@@ -1,6 +1,7 @@
 from datetime import datetime
-from base import BaseIngestor
+from .base import BaseIngestor
 from parsers.generation import parse_generation_document
+from config import settings
 
 class GenerationIngestor(BaseIngestor):
     """A class to handle ingestion from the Energy Generation By Type endpoint."""
@@ -12,7 +13,7 @@ class GenerationIngestor(BaseIngestor):
     @property
     def topic_name(self) -> str:
         """The Kafka topic to publish events to."""
-        return "raw-generation-events"
+        return settings.RAW_GENERATION_TOPIC
 
     def _parse_response(self, response_content: str) -> list[dict]:
         """Parses the XML response into a list of standardised records."""
@@ -23,7 +24,7 @@ class GenerationIngestor(BaseIngestor):
         start_time_str = start_time.strftime("%Y%m%d%H%M")
         end_time_str = end_time.strftime("%Y%m%d%H%M")
         return (
-            f"{self.API_URL}?documentType={self.DOCUMENT_TYPE}"
+            f"{self._api_url}?documentType={self.DOCUMENT_TYPE}"
             f"&processType={self.PROCESS_TYPE}"
             f"&in_Domain={self._eic_code}"
             f"&periodStart={start_time_str}&periodEnd={end_time_str}"
