@@ -1,2 +1,6 @@
 confluent-kafka
+python-dateutil
 python-dotenv
+requests
+pydantic
+pydantic_settings
