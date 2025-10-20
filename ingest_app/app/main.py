@@ -34,7 +34,7 @@ def main():
             eic_code,
             fetcher,
             query_config,
-            settings.API_URL
+            settings.ENTSOE_API_URL
         )
         tasks.append(ingestor)
 
