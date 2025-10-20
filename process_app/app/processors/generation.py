@@ -22,6 +22,7 @@ def process_generation_event(raw_event: RawGenerationEvent) -> List[EnrichedGene
     eic_details = settings.EIC_MAPPINGS[raw_event.eic_code]
     eic_display_name = eic_details["eic_display_name"]
     eic_long_name = eic_details["eic_long_name"]
+    bidding_zone = eic_details["bidding_zone"]
     countries = eic_details["countries"]
 
     # Enrich the event
@@ -29,6 +30,7 @@ def process_generation_event(raw_event: RawGenerationEvent) -> List[EnrichedGene
         eic_display_name=eic_display_name,
         eic_long_name=eic_long_name,
         countries=countries,
+        bidding_zone=bidding_zone,
         carbon_output_kg_co2e=carbon_output_kg_co2e,
         psr_type_name=psr_name,
         **raw_event.model_dump()

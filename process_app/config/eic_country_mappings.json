@@ -4,70 +4,80 @@
         "eic_long_name": "Northern Ireland",
         "countries": [
             "gb-nie"
-        ]
+        ],
+        "bidding_zone": "NIE"
     },
     "10Y1001A1001A39I": {
         "eic_display_name": "EE",
         "eic_long_name": "Estonia",
         "countries": [
             "ee"
-        ]
+        ],
+        "bidding_zone": "EE"
     },
     "10Y1001A1001A44P": {
         "eic_display_name": "SE1",
         "eic_long_name": "Swedish Elspot Area 1",
         "countries": [
             "se"
-        ]
+        ],
+        "bidding_zone": "SE1"
     },
     "10Y1001A1001A45N": {
         "eic_display_name": "SE2",
         "eic_long_name": "Swedish Elspot Area 2",
         "countries": [
             "se"
-        ]
+        ],
+        "bidding_zone": "SE2"
     },
     "10Y1001A1001A46L": {
         "eic_display_name": "SE3",
         "eic_long_name": "Swedish Elspot Area 3",
         "countries": [
             "se"
-        ]
+        ],
+        "bidding_zone": "SE3"
     },
     "10Y1001A1001A47J": {
         "eic_display_name": "SE4",
         "eic_long_name": "Swedish Elspot Area 4",
         "countries": [
             "se"
-        ]
+        ],
+        "bidding_zone": "SE4"
     },
     "10Y1001A1001A48H": {
         "eic_display_name": "NO5",
         "eic_long_name": "Norwegian Area Elspot Area 5",
         "countries": [
             "no"
-        ]
+        ],
+        "bidding_zone": "NO5"
     },
     "10Y1001A1001A49F": {
         "eic_display_name": "RUSSIAN_AREA",
         "eic_long_name": "Russian area",
         "countries": [
             "ru"
-        ]
+        ],
+        "bidding_zone": "RU"
     },
     "10Y1001A1001A50U": {
         "eic_display_name": "KALININGRAD_AREA",
         "eic_long_name": "Kaliningrad area",
         "countries": [
             "ru"
-        ]
+        ],
+        "bidding_zone": "RU-KGD"
     },
     "10Y1001A1001A51S": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "by"
-        ]
+        ],
+        "bidding_zone": "BY"
     },
     "10Y1001A1001A59C": {
         "eic_display_name": "SEM",
@@ -75,7 +85,8 @@
         "countries": [
             "gb-nie",
             "ie"
-        ]
+        ],
+        "bidding_zone": "IE(SEM)"
     },
     "10Y1001A1001A63L": {
         "eic_display_name": "DE_AT_LU",
@@ -84,14 +95,16 @@
             "de",
             "at",
             "lu"
-        ]
+        ],
+        "bidding_zone": "DE-AT-LU"
     },
     "10Y1001A1001A64J": {
         "eic_display_name": "FICTIT_AREA_1A",
         "eic_long_name": "Norwegian Fictitious Area 1A",
         "countries": [
             "no"
-        ]
+        ],
+        "bidding_zone": "NO1A"
     },
     "10Y1001A1001A65H": {
         "eic_display_name": "DK",
@@ -106,7 +119,8 @@
         "countries": [
             "it",
             "el"
-        ]
+        ],
+        "bidding_zone": "IT-GR"
     },
     "10Y1001A1001A67D": {
         "eic_display_name": "IT-NORTH_SI",
@@ -114,7 +128,8 @@
         "countries": [
             "it",
             "si"
-        ]
+        ],
+        "bidding_zone": "IT-North-SI"
     },
     "10Y1001A1001A68B": {
         "eic_display_name": "IT-NORTH_CH",
@@ -122,84 +137,96 @@
         "countries": [
             "it",
             "ch"
-        ]
+        ],
+        "bidding_zone": "IT-North-CH"
     },
     "10Y1001A1001A699": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-Brindisi"
     },
     "10Y1001A1001A70O": {
         "eic_display_name": "IT-CENTRE_NORTH",
         "eic_long_name": "Italy Centre-North",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-Centre-North"
     },
     "10Y1001A1001A71M": {
         "eic_display_name": "IT-CENTRE_SOUTH",
         "eic_long_name": "Italy Centre-South",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-Centre-South"
     },
     "10Y1001A1001A72K": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-Foggia"
     },
     "10Y1001A1001A73I": {
         "eic_display_name": "IT-NORTH",
         "eic_long_name": "Italy North",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-North"
     },
     "10Y1001A1001A74G": {
         "eic_display_name": "IT-SARDINIA",
         "eic_long_name": "Italy Sardinia",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-Sardinia"
     },
     "10Y1001A1001A75E": {
         "eic_display_name": "IT-SICILY",
         "eic_long_name": "Italy Sicily",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-Sicily"
     },
     "10Y1001A1001A76C": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-Priolo"
     },
     "10Y1001A1001A77A": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-Rossano"
     },
     "10Y1001A1001A788": {
         "eic_display_name": "IT-SOUTH",
         "eic_long_name": "Italy South",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-South"
     },
     "10Y1001A1001A796": {
         "eic_display_name": "CA-------DENMARK",
         "eic_long_name": "Control Area Denmark",
         "countries": [
             "de"
-        ]
+        ],
+        "bidding_zone": "DK"
     },
     "10Y1001A1001A80L": {
         "eic_display_name": "IT-NORTH_AT",
@@ -207,7 +234,8 @@
         "countries": [
             "it",
             "at"
-        ]
+        ],
+        "bidding_zone": "IT-North-AT"
     },
     "10Y1001A1001A81J": {
         "eic_display_name": "IT-NORTH_FR",
@@ -215,7 +243,8 @@
         "countries": [
             "it",
             "fr"
-        ]
+        ],
+        "bidding_zone": "IT-North-FR"
     },
     "10Y1001A1001A82H": {
         "eic_display_name": "DE_LU",
@@ -223,35 +252,40 @@
         "countries": [
             "de",
             "lu"
-        ]
+        ],
+        "bidding_zone": "DE-LU"
     },
     "10Y1001A1001A83F": {
         "eic_display_name": "DE",
         "eic_long_name": "Germany",
         "countries": [
             "de"
-        ]
+        ],
+        "bidding_zone": "DE"
     },
     "10Y1001A1001A84D": {
         "eic_display_name": "IT-MACRZONENORTH",
         "eic_long_name": "Market Balance Area MACROZONE NORTH",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-MACRZONENORTH"
     },
     "10Y1001A1001A85B": {
         "eic_display_name": "IT-MACRZONESOUTH",
         "eic_long_name": "Market Balance Area MACROZONE SOUTH",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-MACRZONESOUTH"
     },
     "10Y1001A1001A869": {
         "eic_display_name": "UA-DOB_TPP",
         "eic_long_name": "Ukrainian Area of Dobrotvirska TPP",
         "countries": [
             "ua"
-        ]
+        ],
+        "bidding_zone": "UA-DobTPP"
     },
     "10Y1001A1001A877": {
         "eic_display_name": "IT-MT",
@@ -259,98 +293,112 @@
         "countries": [
             "it",
             "mt"
-        ]
+        ],
+        "bidding_zone": "IT-Malta"
     },
     "10Y1001A1001A885": {
         "eic_display_name": "IT-SACO_AC",
         "eic_long_name": "Italy Saco_AC",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-SACOAC"
     },
     "10Y1001A1001A893": {
         "eic_display_name": "IT-SACODC",
         "eic_long_name": "Italy Saco_DC",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-SACODC"
     },
     "10Y1001A1001A91G": {
         "eic_display_name": "NORDIC_AREA",
         "eic_long_name": "Nordic Market Area",
         "countries": [
             "nordic_region"
-        ]
+        ],
+        "bidding_zone": "Nordic"
     },
     "10Y1001A1001A92E": {
         "eic_display_name": "UK",
         "eic_long_name": "United Kingdom",
         "countries": [
             "uk"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "10Y1001A1001A93C": {
         "eic_display_name": "MALTA_AREA",
         "eic_long_name": "CONTROL AREA ITALY MALTA",
         "countries": [
             "mt"
-        ]
+        ],
+        "bidding_zone": "MT"
     },
     "10Y1001A1001A990": {
         "eic_display_name": "MOLDOVA",
         "eic_long_name": "Moldova",
         "countries": [
             "md"
-        ]
+        ],
+        "bidding_zone": "MD"
     },
     "10Y1001A1001B004": {
         "eic_display_name": "ARMENIA",
         "eic_long_name": "Armenia",
         "countries": [
             "am"
-        ]
+        ],
+        "bidding_zone": "AM"
     },
     "10Y1001A1001B012": {
         "eic_display_name": "GEORGIA",
         "eic_long_name": "Georgia",
         "countries": [
             "ge"
-        ]
+        ],
+        "bidding_zone": "GE"
     },
     "10Y1001A1001B05V": {
         "eic_display_name": "AZERBAIJAN",
         "eic_long_name": "Azerbaijan",
         "countries": [
             "az"
-        ]
+        ],
+        "bidding_zone": "AZ"
     },
     "10Y1001C--00002H": {
         "eic_display_name": "LFC-AREA-AMPR-LU",
         "eic_long_name": "Load-frequency control area of Amprion GmbH-Luxembourg",
         "countries": [
             "lu"
-        ]
+        ],
+        "bidding_zone": "DE(Amprion)-LU"
     },
     "10Y1001C--00003F": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "ua"
-        ]
+        ],
+        "bidding_zone": "UA"
     },
     "10Y1001C--000182": {
         "eic_display_name": "UA-IPS",
         "eic_long_name": "Ukraine IPS",
         "countries": [
             "ua"
-        ]
+        ],
+        "bidding_zone": "UA-IPS"
     },
     "10Y1001C--00031A": {
         "eic_display_name": "WE",
         "eic_long_name": "Western Europe",
         "countries": [
             "we_region"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "10Y1001C--00038X": {
         "eic_display_name": "CZ-DE-SK-LT-SE4",
@@ -361,77 +409,88 @@
             "sk",
             "lt",
             "se"
-        ]
+        ],
+        "bidding_zone": "CZ-DE-SK-LET-SE4"
     },
     "10Y1001C--00059P": {
         "eic_display_name": "CORE",
         "eic_long_name": "Core CCR",
         "countries": [
             "core_region"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "10Y1001C--00085O": {
         "eic_display_name": "MFRR_REGION",
         "eic_long_name": "mFRR region",
         "countries": [
             "mfrr"
-        ]
+        ],
+        "bidding_zone": "MFRR"
     },
     "10Y1001C--00090V": {
         "eic_display_name": "AFRR_REGION",
         "eic_long_name": "aFRR Region",
         "countries": [
             "afrr"
-        ]
+        ],
+        "bidding_zone": "AFRR"
     },
     "10Y1001C--00095L": {
         "eic_display_name": "CCR-SWE",
         "eic_long_name": "Capacity Calculation Region SWE",
         "countries": [
             "swe"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "10Y1001C--00096J": {
         "eic_display_name": "IT-CALABRIA",
         "eic_long_name": "Italy Calabria",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT-Calabria"
     },
     "10Y1001C--00098F": {
         "eic_display_name": "FR_UK_IFA_BZN",
         "eic_long_name": "IFA Bidding Zone",
         "countries": [
             "gb"
-        ]
+        ],
+        "bidding_zone": "GB(IFA)"
     },
     "10Y1001C--00100H": {
         "eic_display_name": "CAKOSTT",
         "eic_long_name": "Control Area Kosovo*",
         "countries": [
             "xk"
-        ]
+        ],
+        "bidding_zone": "XK"
     },
     "10Y1001C--00119X": {
         "eic_display_name": "INREGION",
         "eic_long_name": "Imbalance netting region",
         "countries": [
             "in"
-        ]
+        ],
+        "bidding_zone": "IN"
     },
     "10Y1001C--001219": {
         "eic_display_name": "NO_FICT_AREA_2A",
         "eic_long_name": "Norwegian Fictitious Area 2A",
         "countries": [
             "no"
-        ]
+        ],
+        "bidding_zone": "NO2A"
     },
     "10Y1001C--00137V": {
         "eic_display_name": "CCR-ITALYNORTH",
         "eic_long_name": "Capacity Calculation Region Italy North",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "10Y1001C--00138T": {
         "eic_display_name": "CCR-GRIT",
@@ -439,42 +498,48 @@
         "countries": [
             "gr",
             "it"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "10YAL-KESH-----5": {
         "eic_display_name": "AL",
         "eic_long_name": "Albania",
         "countries": [
             "al"
-        ]
+        ],
+        "bidding_zone": "AL"
     },
     "10YAT-APG------L": {
         "eic_display_name": "AT",
         "eic_long_name": "Austria",
         "countries": [
             "at"
-        ]
+        ],
+        "bidding_zone": "AT"
     },
     "10YBA-JPCC-----D": {
         "eic_display_name": "BA",
         "eic_long_name": "Bosnia and Herzegovina",
         "countries": [
             "ba"
-        ]
+        ],
+        "bidding_zone": "BA"
     },
     "10YBE----------2": {
         "eic_display_name": "BE",
         "eic_long_name": "Belgium",
         "countries": [
             "be"
-        ]
+        ],
+        "bidding_zone": "BE"
     },
     "10YCA-BULGARIA-R": {
         "eic_display_name": "BG",
         "eic_long_name": "Bulgaria",
         "countries": [
             "bg"
-        ]
+        ],
+        "bidding_zone": "BG"
     },
     "10YCB-GERMANY--8": {
         "eic_display_name": "#N/A",
@@ -483,7 +548,8 @@
             "de",
             "dk",
             "lu"
-        ]
+        ],
+        "bidding_zone": "DE_DK1_LU"
     },
     "10YCB-JIEL-----9": {
         "eic_display_name": "CB-RS_MK_ME",
@@ -492,14 +558,16 @@
             "rs",
             "mk",
             "me"
-        ]
+        ],
+        "bidding_zone": "RS_MK_ME"
     },
     "10YCB-POLAND---Z": {
         "eic_display_name": "CB-PL",
         "eic_long_name": "CB Poland",
         "countries": [
             "pl"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "10YCB-SI-HR-BA-3": {
         "eic_display_name": "CB-SI_HR_BA",
@@ -508,21 +576,24 @@
             "si",
             "hr",
             "ba"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "10YCH-SWISSGRIDZ": {
         "eic_display_name": "CH",
         "eic_long_name": "Switzerland",
         "countries": [
             "ch"
-        ]
+        ],
+        "bidding_zone": "CH"
     },
     "10YCS-CG-TSO---S": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "me"
-        ]
+        ],
+        "bidding_zone": "ME"
     },
     "10YCS-SERBIATSOV": {
         "eic_display_name": "RS",
@@ -531,70 +602,80 @@
             "rs",
             "mk",
             "me"
-        ]
+        ],
+        "bidding_zone": "RS"
     },
     "10YCY-1001A0003J": {
         "eic_display_name": "CY",
         "eic_long_name": "Cyprus",
         "countries": [
             "cy"
-        ]
+        ],
+        "bidding_zone": "CY"
     },
     "10YCZ-CEPS-----N": {
         "eic_display_name": "CZ",
         "eic_long_name": "Czech Republic",
         "countries": [
             "cz"
-        ]
+        ],
+        "bidding_zone": "CZ"
     },
     "10YDE-ENBW-----N": {
         "eic_display_name": "DE-TRANSNETBW",
         "eic_long_name": "Germany TransnetBW",
         "countries": [
             "de"
-        ]
+        ],
+        "bidding_zone": "DE(TransnetBW)"
     },
     "10YDE-EON------1": {
         "eic_display_name": "DE-TENNET_DE",
         "eic_long_name": "Germany TenneT DE",
         "countries": [
             "de"
-        ]
+        ],
+        "bidding_zone": "DE(TenneT GER)"
     },
     "10YDE-RWENET---I": {
         "eic_display_name": "DE-AMPRION-SCHED",
         "eic_long_name": "Amprion GmbH",
         "countries": [
             "de"
-        ]
+        ],
+        "bidding_zone": "DE(Amprion)"
     },
     "10YDE-VE-------2": {
         "eic_display_name": "DE-50HERTZ",
         "eic_long_name": "Germany 50Hertz",
         "countries": [
             "de"
-        ]
+        ],
+        "bidding_zone": "DE(50Hertz)"
     },
     "10YDK-1--------W": {
         "eic_display_name": "DK1",
         "eic_long_name": "Denmark DK1",
         "countries": [
             "dk"
-        ]
+        ],
+        "bidding_zone": "DK1"
     },
     "10YDK-1-------AA": {
         "eic_display_name": "OPT_AREA_DENMARK",
         "eic_long_name": "Optimization area Denmark1",
         "countries": [
             "dk"
-        ]
+        ],
+        "bidding_zone": "DK1A"
     },
     "10YDK-2--------M": {
         "eic_display_name": "DK2",
         "eic_long_name": "Denmark DK2",
         "countries": [
             "dk"
-        ]
+        ],
+        "bidding_zone": "DK2"
     },
     "10YDOM-1001A082L": {
         "eic_display_name": "DE-PL-CZ-AREA",
@@ -602,7 +683,8 @@
         "countries": [
             "pl",
             "cz"
-        ]
+        ],
+        "bidding_zone": "PL-CZ"
     },
     "10YDOM-CZ-DE-SKK": {
         "eic_display_name": "#N/A",
@@ -611,7 +693,8 @@
             "cz",
             "de",
             "sk"
-        ]
+        ],
+        "bidding_zone": "CZ+DE+SK"
     },
     "10YDOM-PL-SE-LT2": {
         "eic_display_name": "LT-SE4-AREA",
@@ -619,84 +702,96 @@
         "countries": [
             "lt",
             "se"
-        ]
+        ],
+        "bidding_zone": "LT-SE4"
     },
     "10YDOM-REGION-1V": {
         "eic_display_name": "CWE-EU",
         "eic_long_name": "CWE Region",
         "countries": [
             "cwe_region"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "10YES-REE------0": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "es"
-        ]
+        ],
+        "bidding_zone": "ES"
     },
     "10YEU-CONT-SYNC0": {
         "eic_display_name": "EU-CONTINENT-SYN",
         "eic_long_name": "Synchronous Zone of Continental Europe",
         "countries": [
             "continental_europe"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "10YFI-1--------U": {
         "eic_display_name": "FI",
         "eic_long_name": "Finland",
         "countries": [
             "fi"
-        ]
+        ],
+        "bidding_zone": "FI"
     },
     "10YFR-RTE------C": {
         "eic_display_name": "FR",
         "eic_long_name": "France",
         "countries": [
             "fr"
-        ]
+        ],
+        "bidding_zone": "FR"
     },
     "10YGB----------A": {
         "eic_display_name": "GB",
         "eic_long_name": "Great Britain",
         "countries": [
             "gb"
-        ]
+        ],
+        "bidding_zone": "GB"
     },
     "10YGR-HTSO-----Y": {
         "eic_display_name": "GR",
         "eic_long_name": "Greece",
         "countries": [
             "gr"
-        ]
+        ],
+        "bidding_zone": "GR"
     },
     "10YHR-HEP------M": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "hr"
-        ]
+        ],
+        "bidding_zone": "HR"
     },
     "10YHU-MAVIR----U": {
         "eic_display_name": "HU",
         "eic_long_name": "Hungary",
         "countries": [
             "hu"
-        ]
+        ],
+        "bidding_zone": "HU"
     },
     "10YIE-1001A00010": {
         "eic_display_name": "IE",
         "eic_long_name": "Ireland",
         "countries": [
             "ie"
-        ]
+        ],
+        "bidding_zone": "IE"
     },
     "10YIT-GRTN-----B": {
         "eic_display_name": "IT",
         "eic_long_name": "Italy",
         "countries": [
             "it"
-        ]
+        ],
+        "bidding_zone": "IT"
     },
     "10YLT-1001A0008Q": {
         "eic_display_name": "LT",
@@ -704,140 +799,160 @@
         "countries": [
             "lt",
             "se"
-        ]
+        ],
+        "bidding_zone": "LT"
     },
     "10YLU-CEGEDEL-NQ": {
         "eic_display_name": "LU",
         "eic_long_name": "Luxembourg",
         "countries": [
             "lu"
-        ]
+        ],
+        "bidding_zone": "LU"
     },
     "10YLV-1001A00074": {
         "eic_display_name": "LV",
         "eic_long_name": "Latvia",
         "countries": [
             "lv"
-        ]
+        ],
+        "bidding_zone": "LV"
     },
     "10YMK-MEPSO----8": {
         "eic_display_name": "MK",
         "eic_long_name": "FYROM",
         "countries": [
             "mk"
-        ]
+        ],
+        "bidding_zone": "MK"
     },
     "10YNL----------L": {
         "eic_display_name": "NL",
         "eic_long_name": "Netherlands",
         "countries": [
             "nl"
-        ]
+        ],
+        "bidding_zone": "NL"
     },
     "10YNO-0--------C": {
         "eic_display_name": "NO",
         "eic_long_name": "Norway",
         "countries": [
             "no"
-        ]
+        ],
+        "bidding_zone": "NO"
     },
     "10YNO-1--------2": {
         "eic_display_name": "NO1",
         "eic_long_name": "Norwegian Area Elspot Area 1",
         "countries": [
             "no"
-        ]
+        ],
+        "bidding_zone": "NO1"
     },
     "10YNO-2--------T": {
         "eic_display_name": "NO2",
         "eic_long_name": "Norwegian Area Elspot Area 2",
         "countries": [
             "no"
-        ]
+        ],
+        "bidding_zone": "NO2"
     },
     "10YNO-3--------J": {
         "eic_display_name": "NO3",
         "eic_long_name": "Norwegian Area Elspot Area 3",
         "countries": [
             "no"
-        ]
+        ],
+        "bidding_zone": "NO3"
     },
     "10YNO-4--------9": {
         "eic_display_name": "NO4",
         "eic_long_name": "Norwegian Area Elspot Area 4",
         "countries": [
             "no"
-        ]
+        ],
+        "bidding_zone": "NO4"
     },
     "10YPL-AREA-----S": {
         "eic_display_name": "PL",
         "eic_long_name": "Poland",
         "countries": [
             "pl"
-        ]
+        ],
+        "bidding_zone": "PL"
     },
     "10YPT-REN------W": {
         "eic_display_name": "PT",
         "eic_long_name": "Portugal",
         "countries": [
             "pt"
-        ]
+        ],
+        "bidding_zone": "PT"
     },
     "10YRO-TEL------P": {
         "eic_display_name": "RO",
         "eic_long_name": "Romania",
         "countries": [
             "ro"
-        ]
+        ],
+        "bidding_zone": "RO"
     },
     "10YSE-1--------K": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "se"
-        ]
+        ],
+        "bidding_zone": "SE"
     },
     "10YSI-ELES-----O": {
         "eic_display_name": "SI",
         "eic_long_name": "Slovenia",
         "countries": [
             "si"
-        ]
+        ],
+        "bidding_zone": "SI"
     },
     "10YSK-SEPS-----K": {
         "eic_display_name": "SK",
         "eic_long_name": "Slovak Republic",
         "countries": [
             "sk"
-        ]
+        ],
+        "bidding_zone": "SK"
     },
     "10YTR-TEIAS----W": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "tr"
-        ]
+        ],
+        "bidding_zone": "TR"
     },
     "10YUA-WEPS-----0": {
         "eic_display_name": "UA-BEI",
         "eic_long_name": "Ukrainian Area of Burshtyn island",
         "countries": [
             "ua"
-        ]
+        ],
+        "bidding_zone": "UA-BEI"
     },
     "11Y0-0000-0265-K": {
         "eic_display_name": "GB1A-FR-AREA",
         "eic_long_name": "UK optimization area GB1A",
         "countries": [
             "gb"
-        ]
+        ],
+        "bidding_zone": "GB(ElecLink)"
     },
     "17Y0000009369493": {
         "eic_display_name": "FR_UK_IFA2_V_BZN",
         "eic_long_name": "IFA2_virtual_BZN",
         "countries": [
             "gb"
-        ]
+        ],
+        "bidding_zone": "GB(IFA2)"
     },
     "46Y000000000007M": {
         "eic_display_name": "CUT_AREA_SE3LS",
@@ -845,34 +960,39 @@
         "countries": [
             "dk",
             "no"
-        ]
+        ],
+        "bidding_zone": "DK1-NO1"
     },
     "50Y0JVU59B4JWQCU": {
         "eic_display_name": "NO_NO2NSL",
         "eic_long_name": "Virtual Bidding Zone NO2NSL",
         "countries": [
             "no"
-        ]
+        ],
+        "bidding_zone": "NO2NSL"
     },
     "BY": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "by"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "IS": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "is"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "RU": {
         "eic_display_name": "#N/A",
         "eic_long_name": "#N/A",
         "countries": [
             "ru"
-        ]
+        ],
+        "bidding_zone": ""
     }
 }

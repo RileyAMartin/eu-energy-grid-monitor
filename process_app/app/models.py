@@ -20,6 +20,7 @@ class EnrichedGenerationEvent(RawGenerationEvent):
     """Represents an enriched generation event that will be uploaded to Kafka."""
     eic_display_name: str
     eic_long_name: str
+    eic_bidding_zone: str
     countries: List[str]
     carbon_output_kg_co2e: float
     psr_type_name: str
@@ -30,4 +31,3 @@ class EventJSONDecoder(json.JSONEncoder):
         if isinstance(obj, datetime):
             return obj.isoformat()
         return super().default(obj)
-

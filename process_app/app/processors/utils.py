@@ -24,6 +24,7 @@ def split_event(event: Event, new_duration_mins: int) -> List[Event]:
     end_time = start_time + increment
     quantity_per_interval = event.quantity_mw / num_intervals
 
+    # Split the events
     events = []
     for _ in range(num_intervals):
         new_event = event.model_copy(update={
@@ -31,7 +32,6 @@ def split_event(event: Event, new_duration_mins: int) -> List[Event]:
             "end_time": end_time,
             "quantity_mw": quantity_per_interval
         })
-
         events.append(new_event)
         start_time = end_time
         end_time += increment
