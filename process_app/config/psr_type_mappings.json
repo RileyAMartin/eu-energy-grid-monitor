@@ -1,0 +1,160 @@
+[
+    {
+        "code": "A03",
+        "name": "Mixed",
+        "kg_co2e_mwh": 0
+    },
+    {
+        "code": "A04",
+        "name": "Generation",
+        "kg_co2e_mwh": 0
+    },
+    {
+        "code": "A05",
+        "name": "Load",
+        "kg_co2e_mwh": 0
+    },
+    {
+        "code": "B01",
+        "name": "Biomass",
+        "source": "2024 Australian DCCEEW National Greenhouse Accounts Factors, Table 4, Scope 1",
+        "kg_co2e_mwh": 1.8
+    },
+    {
+        "code": "B02",
+        "name": "Fossil Brown coal/Lignite",
+        "source": "2006 IPCC Guidelines for National Greenhouse Gas Inventories, Volume 2: Energy, Tables 1.4 and 2.2",
+        "kg_co2e_mwh": 363.6
+    },
+    {
+        "code": "B03",
+        "name": "Fossil Coal-derived gas",
+        "source": "2006 IPCC Guidelines for National Greenhouse Gas Inventories, Volume 2: Energy, Tables 1.4 and 2.2",
+        "kg_co2e_mwh": 159.84
+    },
+    {
+        "code": "B04",
+        "name": "Fossil Gas",
+        "source": "2006 IPCC Guidelines for National Greenhouse Gas Inventories, Volume 2: Energy, Tables 1.4 and 2.2",
+        "kg_co2e_mwh": 201.96
+    },
+    {
+        "code": "B05",
+        "name": "Fossil Hard coal",
+        "source": "2006 IPCC Guidelines for National Greenhouse Gas Inventories, Volume 2: Energy, Tables 1.4 and 2.2",
+        "kg_co2e_mwh": 353.88
+    },
+    {
+        "code": "B06",
+        "name": "Fossil Oil",
+        "source": "2006 IPCC Guidelines for National Greenhouse Gas Inventories, Volume 2: Energy, Tables 1.4 and 2.2",
+        "kg_co2e_mwh": 278.64
+    },
+    {
+        "code": "B07",
+        "name": "Fossil Oil shale",
+        "source": "2006 IPCC Guidelines for National Greenhouse Gas Inventories, Volume 2: Energy, Tables 1.4 and 2.2",
+        "kg_co2e_mwh": 385.2
+    },
+    {
+        "code": "B08",
+        "name": "Fossil Peat",
+        "source": "2006 IPCC Guidelines for National Greenhouse Gas Inventories, Volume 2: Energy, Tables 1.4 and 2.2",
+        "kg_co2e_mwh": 381.6
+    },
+    {
+        "code": "B09",
+        "name": "Geothermal",
+        "source": "Nicholson, Scott, and Garvin Heath. 2021. 'Life Cycle Emissions Factors for Electricity Generation Technologies.' NREL Data Catalog. Golden, CO: National Renewable Energy Laboratory. Last updated: January 21, 2025. DOI: 10.7799/1819907.",
+        "kg_co2e_mwh": 37
+    },
+    {
+        "code": "B10",
+        "name": "Hydro Pumped Storage",
+        "source": "Nicholson, Scott, and Garvin Heath. 2021. 'Life Cycle Emissions Factors for Electricity Generation Technologies.' NREL Data Catalog. Golden, CO: National Renewable Energy Laboratory. Last updated: January 21, 2025. DOI: 10.7799/1819907.",
+        "kg_co2e_mwh": 7.4
+    },
+    {
+        "code": "B11",
+        "name": "Hydro Run-of-river and poundage",
+        "source": "Nicholson, Scott, and Garvin Heath. 2021. 'Life Cycle Emissions Factors for Electricity Generation Technologies.' NREL Data Catalog. Golden, CO: National Renewable Energy Laboratory. Last updated: January 21, 2025. DOI: 10.7799/1819907.",
+        "kg_co2e_mwh": 23
+    },
+    {
+        "code": "B12",
+        "name": "Hydro Water Reservoir",
+        "source": "Nicholson, Scott, and Garvin Heath. 2021. 'Life Cycle Emissions Factors for Electricity Generation Technologies.' NREL Data Catalog. Golden, CO: National Renewable Energy Laboratory. Last updated: January 21, 2025. DOI: 10.7799/1819907.",
+        "kg_co2e_mwh": 13
+    },
+    {
+        "code": "B13",
+        "name": "Marine",
+        "source": "Nicholson, Scott, and Garvin Heath. 2021. 'Life Cycle Emissions Factors for Electricity Generation Technologies.' NREL Data Catalog. Golden, CO: National Renewable Energy Laboratory. Last updated: January 21, 2025. DOI: 10.7799/1819907.",
+        "kg_co2e_mwh": 8
+    },
+    {
+        "code": "B14",
+        "name": "Nuclear",
+        "source": "Nicholson, Scott, and Garvin Heath. 2021. 'Life Cycle Emissions Factors for Electricity Generation Technologies.' NREL Data Catalog. Golden, CO: National Renewable Energy Laboratory. Last updated: January 21, 2025. DOI: 10.7799/1819907.",
+        "kg_co2e_mwh": 13
+    },
+    {
+        "code": "B15",
+        "name": "Other renewable",
+        "kg_co2e_mwh": 0
+    },
+    {
+        "code": "B16",
+        "name": "Solar",
+        "source": "Nicholson, Scott, and Garvin Heath. 2021. 'Life Cycle Emissions Factors for Electricity Generation Technologies.' NREL Data Catalog. Golden, CO: National Renewable Energy Laboratory. Last updated: January 21, 2025. DOI: 10.7799/1819907.",
+        "kg_co2e_mwh": 43
+    },
+    {
+        "code": "B17",
+        "name": "Waste",
+        "source": "2006 IPCC Guidelines for National Greenhouse Gas Inventories, Volume 2: Energy, Tables 1.4 and 2.2",
+        "kg_co2e_mwh": 330.12
+    },
+    {
+        "code": "B18",
+        "name": "Wind Offshore",
+        "source": "Nicholson, Scott, and Garvin Heath. 2021. 'Life Cycle Emissions Factors for Electricity Generation Technologies.' NREL Data Catalog. Golden, CO: National Renewable Energy Laboratory. Last updated: January 21, 2025. DOI: 10.7799/1819907.",
+        "kg_co2e_mwh": 19
+    },
+    {
+        "code": "B19",
+        "name": "Wind Onshore",
+        "source": "Nicholson, Scott, and Garvin Heath. 2021. 'Life Cycle Emissions Factors for Electricity Generation Technologies.' NREL Data Catalog. Golden, CO: National Renewable Energy Laboratory. Last updated: January 21, 2025. DOI: 10.7799/1819907.",
+        "kg_co2e_mwh": 12
+    },
+    {
+        "code": "B20",
+        "name": "Other",
+        "kg_co2e_mwh": 0
+    },
+    {
+        "code": "B21",
+        "name": "AC Link",
+        "kg_co2e_mwh": 0
+    },
+    {
+        "code": "B22",
+        "name": "DC Link",
+        "kg_co2e_mwh": 0
+    },
+    {
+        "code": "B23",
+        "name": "Substation",
+        "kg_co2e_mwh": 0
+    },
+    {
+        "code": "B24",
+        "name": "Transformer",
+        "kg_co2e_mwh": 0
+    },
+    {
+        "code": "B25",
+        "name": "Energy storage",
+        "kg_co2e_mwh": 0
+    }
+]
