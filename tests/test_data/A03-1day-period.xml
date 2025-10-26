@@ -1,0 +1,15 @@
+<Period>
+<timeInterval>
+<start>2025-10-22T00:00Z</start>
+<end>2025-10-22T03:00Z</end>
+</timeInterval>
+<resolution>PT30M</resolution>
+<Point>
+    <position>1</position>
+    <quantity>10</quantity>
+</Point>
+<Point>
+    <position>5</position>
+    <quantity>10</quantity>
+</Point>
+</Period>

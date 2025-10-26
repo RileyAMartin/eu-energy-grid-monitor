@@ -39,21 +39,25 @@ def main():
         tasks.append(ingestor)
 
     # Recurring ingestion loop
-    while True:
-        logging.info("--- Starting new daily ingestion cycle ---")
+    try:
+        while True:
+            logging.info("--- Starting new daily ingestion cycle ---")
 
-        for task in tasks:
-            task.run_ingestion_cycle()
-            time.sleep(3)
-        
-        remaining_messages = producer.flush()
-        if remaining_messages > 0:
-            logging.warning(f"--- {remaining_messages} messages failed to deliver to Kafka. ---")
-        else:
-            logging.info("--- All messages delivered successfully to Kafka. ---")
+            for task in tasks:
+                task.run_ingestion_cycle()
+                time.sleep(3)
+            
+            remaining_messages = producer.flush()
+            if remaining_messages > 0:
+                logging.warning(f"--- {remaining_messages} messages failed to deliver to Kafka. ---")
+            else:
+                logging.info("--- All messages delivered successfully to Kafka. ---")
 
-        logging.info("--- Daily cycle complete. Sleeping for 24 hours ---")
-        time.sleep(86400) # 1 day - TODO: implement adaptive sleeping and then cron jobs
+            logging.info("--- Daily cycle complete. Sleeping for 24 hours ---")
+            time.sleep(86400) # 1 day - TODO: implement adaptive sleeping and then cron jobs
+    except KeyboardInterrupt as e:
+        logging.info("--- Shutting down ingestion ---")
+        producer.flush()
 
 
 if __name__ == "__main__":

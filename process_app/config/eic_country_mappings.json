@@ -72,8 +72,8 @@
         "bidding_zone": "RU-KGD"
     },
     "10Y1001A1001A51S": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "by"
         ],
@@ -141,8 +141,8 @@
         "bidding_zone": "IT-North-CH"
     },
     "10Y1001A1001A699": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "it"
         ],
@@ -165,8 +165,8 @@
         "bidding_zone": "IT-Centre-South"
     },
     "10Y1001A1001A72K": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "it"
         ],
@@ -197,16 +197,16 @@
         "bidding_zone": "IT-Sicily"
     },
     "10Y1001A1001A76C": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "it"
         ],
         "bidding_zone": "IT-Priolo"
     },
     "10Y1001A1001A77A": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "it"
         ],
@@ -377,8 +377,8 @@
         "bidding_zone": "DE(Amprion)-LU"
     },
     "10Y1001C--00003F": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "ua"
         ],
@@ -542,8 +542,8 @@
         "bidding_zone": "BG"
     },
     "10YCB-GERMANY--8": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "de",
             "dk",
@@ -588,8 +588,8 @@
         "bidding_zone": "CH"
     },
     "10YCS-CG-TSO---S": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "me"
         ],
@@ -687,8 +687,8 @@
         "bidding_zone": "PL-CZ"
     },
     "10YDOM-CZ-DE-SKK": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "cz",
             "de",
@@ -714,8 +714,8 @@
         "bidding_zone": ""
     },
     "10YES-REE------0": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "es"
         ],
@@ -762,8 +762,8 @@
         "bidding_zone": "GR"
     },
     "10YHR-HEP------M": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "hr"
         ],
@@ -899,8 +899,8 @@
         "bidding_zone": "RO"
     },
     "10YSE-1--------K": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "se"
         ],
@@ -923,8 +923,8 @@
         "bidding_zone": "SK"
     },
     "10YTR-TEIAS----W": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "tr"
         ],
@@ -972,24 +972,24 @@
         "bidding_zone": "NO2NSL"
     },
     "BY": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "by"
         ],
         "bidding_zone": ""
     },
     "IS": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "is"
         ],
         "bidding_zone": ""
     },
     "RU": {
-        "eic_display_name": "#N/A",
-        "eic_long_name": "#N/A",
+        "eic_display_name": "",
+        "eic_long_name": "",
         "countries": [
             "ru"
         ],

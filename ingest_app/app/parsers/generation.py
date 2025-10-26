@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from lxml import etree
 import logging
@@ -81,7 +81,16 @@ def _parse_period_to_events(
 
         # The "A03" curve type uses a segmented Point representation to save space
         # Each Point in the Period can represent more than 1 interval
-        num_positions = int((end_dt - start_dt) / resolution_delta)
+        resolution_timedelta = timedelta(
+            days=resolution_delta.days,
+            hours=resolution_delta.hours,
+            minutes=resolution_delta.minutes,
+            seconds=resolution_delta.seconds
+        )
+        if resolution_timedelta.total_seconds() == 0:
+            raise ValueError("Resolution results in zero timedelta for division")
+
+        num_positions = int((end_dt - start_dt) / resolution_timedelta)
         num_points = len(points)
         curr_dt = start_dt
         next_dt = curr_dt + resolution_delta
@@ -90,7 +99,7 @@ def _parse_period_to_events(
                 point.xpath(".//doc:position", namespaces=NSMAP)[0].text.strip()
             )
             quantity = float(
-                point.xpath(".//doc:quantity", namespaces=NSMAP[0].text.strip())
+                point.xpath(".//doc:quantity", namespaces=NSMAP)[0].text.strip()
             )
             if quantity == None:
                 quantity = 0
@@ -98,24 +107,25 @@ def _parse_period_to_events(
             # If you're at the final position, interpolate all remaining Points until the end of the Period's interval
             # Otherwise, interpolate up to the next Point
             if i + 1 == num_points:
-                next_pos = num_positions
+                next_pos = num_positions + 1
             else:
+                next_point = points[i+1]
                 next_pos = int(
-                    point.xpath(".//doc:position", namespaces=NSMAP)[0].text.strip()
+                    next_point.xpath(".//doc:position", namespaces=NSMAP)[0].text.strip()
                 )
 
             for _ in range(curr_pos, next_pos):
                 interval = {
-                    "start_time": curr_dt,
-                    "end_time": next_dt,
-                    "quantity": quantity,
+                    "start_time": curr_dt.isoformat(),
+                    "end_time": next_dt.isoformat(),
+                    "quantity_mw": quantity,
                     **shared_attributes,
                 }
                 events.append(interval)
                 curr_dt = next_dt
                 next_dt += resolution_delta
     else:
-        return None
+        return []
 
     return events
 
