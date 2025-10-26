@@ -73,4 +73,4 @@ class BaseIngestor(ABC):
         except requests.RequestException as e:
             logging.error(f"Network request failed for {self._eic_code}.")
         except Exception as e:
-            logging.error(f"Unexpected error for EIC {self._eic_code}. Error: {e}")
+            logging.error(f"Unexpected error for EIC {self._eic_code}. Error: {e}", exc_info=True)

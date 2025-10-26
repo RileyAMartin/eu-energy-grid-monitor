@@ -1,7 +1,6 @@
-from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from typing import List
-from models import RawGenerationEvent, EnrichedGenerationEvent, Event
+from models import Event
 from exceptions import InvalidEventDurationError
 
 def split_event(event: Event, new_duration_mins: int) -> List[Event]:

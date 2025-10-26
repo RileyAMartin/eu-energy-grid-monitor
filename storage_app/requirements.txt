@@ -1,0 +1,5 @@
+confluent-kafka
+pydantic
+pydantic_settings
+python-dotenv
+psycopg2

@@ -27,7 +27,7 @@ def main():
     producer = Producer(producer_config)
     consumer = Consumer(consumer_config)
 
-    # Processing functions and output topics for each raw data topic in the Queue
+    # Processing functions and output topics for each raw data topic in the queue
     processing_dispatcher = {
         settings.RAW_GENERATION_TOPIC: {
             "enriched_topic": settings.ENRICHED_GENERATION_TOPIC,
@@ -61,7 +61,7 @@ def main():
 
                 # Produce the enriched events
                 for event in enriched_events:
-                    event_dict = event.model_dump(mode="JSON")
+                    event_dict = event.model_dump(mode="json")
                     producer.produce(
                         processor_config["enriched_topic"],
                         key=event.eic_code.encode("utf-8"),
@@ -72,7 +72,7 @@ def main():
                 consumer.commit(asynchronous=False)
 
             except (json.JSONDecodeError, Exception) as e:
-                logging.error(f"Failed to process message: {e}")
+                logging.error(f"Failed to process message: {e}\Message Value: {msg.value()}")
                 consumer.commit(asynchronous=False)
     except KeyboardInterrupt:
         logging.info("Shutting down consumer...")

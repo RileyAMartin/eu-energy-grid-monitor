@@ -2,10 +2,10 @@ from ingest_app.app.parsers import generation
 import pytest
 
 
-@pytest.fixture
-def xml_content():
-    with open("tests/test_data/generation-test-curvetype-A01.xml", "rb") as f:
-        return f.read()
+# @pytest.fixture
+# def xml_content():
+#     with open("tests/test_data/generation-test-curvetype-A01.xml", "rb") as f:
+#         return f.read()
 
 
 @pytest.mark.parametrize(

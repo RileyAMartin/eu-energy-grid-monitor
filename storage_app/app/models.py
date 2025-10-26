@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from typing import List
 from pydantic import BaseModel
@@ -20,14 +19,7 @@ class EnrichedGenerationEvent(RawGenerationEvent):
     """Represents an enriched generation event that will be uploaded to Kafka."""
     eic_display_name: str
     eic_long_name: str
-    bidding_zone: str
+    bidding_zone: str | None
     countries: List[str]
     carbon_output_kg_co2e: float
     psr_type_name: str
-
-class EventJSONDecoder(json.JSONEncoder):
-    """Custom decoder to convert events to JSON format."""
-    def default(self, obj):
-        if isinstance(obj, datetime):
-            return obj.isoformat()
-        return super().default(obj)
