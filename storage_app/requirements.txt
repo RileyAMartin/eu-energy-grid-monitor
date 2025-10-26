@@ -1,3 +1,4 @@
+-e ../eugrid_monitor_core
 confluent-kafka
 pydantic
 pydantic_settings

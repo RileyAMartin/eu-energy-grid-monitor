@@ -1,3 +1,4 @@
+-e ../eugrid_monitor_core
 lxml
 confluent-kafka
 python-dateutil

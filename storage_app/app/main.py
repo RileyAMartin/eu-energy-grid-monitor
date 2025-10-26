@@ -8,7 +8,7 @@ from confluent_kafka import Consumer, KafkaError
 from pydantic import ValidationError
 from typing import List
 from config import settings
-from models import EnrichedGenerationEvent
+from eugrid_monitor_core.models import EnrichedGenerationEvent
 
 def perform_bulk_insert(conn, table_name: str, columns: List[str], conflict_columns: List[str], events: List[dict]):
 
