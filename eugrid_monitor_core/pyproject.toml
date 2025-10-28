@@ -1,2 +1,8 @@
-name = "eugrid-monitor-core"
+[project]
+name = "eugrid_monitor_core"
+description="Shared models and constants between each EU Grid Monitor app."
 version = "0.1.0"
+dependencies = ["pydantic"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}

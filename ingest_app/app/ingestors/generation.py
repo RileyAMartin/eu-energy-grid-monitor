@@ -1,6 +1,7 @@
 from datetime import datetime
 from .base import BaseIngestor
 from parsers.generation import parse_generation_document
+from eugrid_monitor_core.models import RawGenerationEvent
 from config import settings
 
 class GenerationIngestor(BaseIngestor):
@@ -15,7 +16,7 @@ class GenerationIngestor(BaseIngestor):
         """The Kafka topic to publish events to."""
         return settings.RAW_GENERATION_TOPIC
 
-    def _parse_response(self, response_content: str) -> list[dict]:
+    def _parse_response(self, response_content: str) -> list[RawGenerationEvent]:
         """Parses the XML response into a list of standardised records."""
         return parse_generation_document(response_content)
 

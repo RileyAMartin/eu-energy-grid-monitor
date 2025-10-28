@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from lxml import etree
+from eugrid_monitor_core.models import RawGenerationEvent
 import logging
 
 # XML namespace for Market Documents
@@ -73,7 +74,8 @@ def _parse_period_to_events(
                 "quantity_mw": quantity,
                 **shared_attributes,
             }
-            events.append(interval)
+            event = RawGenerationEvent.model_validate(interval)
+            events.append(event)
             curr_dt = next_dt
             next_dt += resolution_delta
 
@@ -121,7 +123,8 @@ def _parse_period_to_events(
                     "quantity_mw": quantity,
                     **shared_attributes,
                 }
-                events.append(interval)
+                event = RawGenerationEvent.model_validate(interval)
+                events.append(event)
                 curr_dt = next_dt
                 next_dt += resolution_delta
     else:

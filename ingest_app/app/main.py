@@ -7,7 +7,6 @@ import logging
 import time
 
 
-
 def main():
     """
     Sets up the environment and runs the ingestion cycle for the ENTSOE-API.
@@ -15,7 +14,6 @@ def main():
     """
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    # Shared instances across each ingestor
     producer = Producer({
         'bootstrap.servers': settings.KAFKA_BOOTSTRAP_SERVERS,
         'security.protocol': 'SASL_SSL',
@@ -27,6 +25,7 @@ def main():
     query_config = DailyQueryConfig()
     
     # Initialise the ingestion tasks
+    # For now, we only do ingestion for generation metrics, but will add more later
     tasks = []
     for eic_code in settings.EIC_CODES_GENERATION:
         ingestor = GenerationIngestor(
@@ -38,7 +37,7 @@ def main():
         )
         tasks.append(ingestor)
 
-    # Recurring ingestion loop
+    # Ingestion loop
     try:
         while True:
             logging.info("--- Starting new daily ingestion cycle ---")
