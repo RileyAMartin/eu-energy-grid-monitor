@@ -1,6 +1,6 @@
 from typing import List
 from .utils import split_event
-from models import RawGenerationEvent, EnrichedGenerationEvent
+from eugrid_monitor_core.models import RawGenerationEvent, EnrichedGenerationEvent
 from config import settings
 
 def process_generation_event(raw_event: RawGenerationEvent) -> List[EnrichedGenerationEvent]:

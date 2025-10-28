@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from typing import List
-from models import Event
+from eugrid_monitor_core.models import Event
 from exceptions import InvalidEventDurationError
 
 def split_event(event: Event, new_duration_mins: int) -> List[Event]:

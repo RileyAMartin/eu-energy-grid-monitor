@@ -1,6 +1,6 @@
 from confluent_kafka import Consumer, KafkaError, KafkaException, Producer
 from config import settings
-from models import RawGenerationEvent, EventJSONDecoder
+from eugrid_monitor_core.models import RawGenerationEvent, EventJSONDecoder
 from datetime import datetime
 from processors.generation import process_generation_event
 import logging
@@ -72,7 +72,7 @@ def main():
                 consumer.commit(asynchronous=False)
 
             except (json.JSONDecodeError, Exception) as e:
-                logging.error(f"Failed to process message: {e}\Message Value: {msg.value()}")
+                logging.error(f"Failed to process message: {e}\nMessage Value: {msg.value()}")
                 consumer.commit(asynchronous=False)
     except KeyboardInterrupt:
         logging.info("Shutting down consumer...")

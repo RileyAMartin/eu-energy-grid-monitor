@@ -1,7 +1,7 @@
 from typing import List
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
-from models import EnrichedGenerationEvent
+from eugrid_monitor_core.models import EnrichedGenerationEvent
 
 load_dotenv()
 
@@ -22,7 +22,7 @@ DB_MAPPINGS = {
             "end_time"
         ],
         "model": EnrichedGenerationEvent,
-        "conflict_columns": []      
+        "conflict_columns": []
     }
 }
 

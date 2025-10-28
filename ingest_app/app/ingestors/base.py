@@ -4,7 +4,8 @@ from confluent_kafka import Producer
 from api.client import BaseFetcher
 from exceptions import InvalidIntervalError, NoDataFoundError
 from .query_configs import BaseQueryConfig
-import json
+from eugrid_monitor_core.models import Event
+from pydantic import ValidationError
 import logging
 import requests
 
@@ -19,8 +20,8 @@ class BaseIngestor(ABC):
         self._api_url = api_url
 
     @abstractmethod
-    def _parse_response(self, response_content: str) -> list[dict]:
-        """Parses the XML response (GenerationDocument) into a list of records."""
+    def _parse_response(self, response_content: str) -> list[Event]:
+        """Parses the XML response (market document) into a list of events."""
         pass
 
     @abstractmethod
@@ -47,11 +48,10 @@ class BaseIngestor(ABC):
             if not events:
                 logging.warning(f"No valid data found for EIC {self._eic_code}")
                 return
-            
+
             # Add the events to Kafka
             for event in events:
-                event['eic_code'] = self._eic_code
-                event_json = json.dumps(event)
+                event_json = event.model_dump_json()
                 self._producer.produce(
                     self.topic_name,
                     key=self._eic_code,
@@ -72,5 +72,7 @@ class BaseIngestor(ABC):
                 logging.error(f"Client error ({e.response.status_code}) for {self._eic_code}.")
         except requests.RequestException as e:
             logging.error(f"Network request failed for {self._eic_code}.")
+        except ValidationError as e:
+            logging.error(f"Pydantic validation failed for event: {e}")
         except Exception as e:
             logging.error(f"Unexpected error for EIC {self._eic_code}. Error: {e}", exc_info=True)
