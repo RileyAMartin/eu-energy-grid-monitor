@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 from typing import List
+import logging
 
 load_dotenv()
 
@@ -16,6 +17,7 @@ def _load_eic_codes_from_file(filepath: str) -> List[str]:
             ]
             return codes
     except FileNotFoundError:
+        logging.error(f"Couldn't find file for EIC codes: {filepath}")
         return []
 
 class Settings(BaseSettings):
@@ -26,7 +28,7 @@ class Settings(BaseSettings):
     KAFKA_SASL_USERNAME: str
     KAFKA_SASL_PASSWORD: str
 
-    # Application constants
+    # App constants
     ENTSOE_API_URL: str = "https://web-api.tp.entsoe.eu/api"
     RAW_GENERATION_TOPIC: str = "raw-generation-events"
     EIC_CODES: List[str] = _load_eic_codes_from_file("config/eic_codes_all.txt")
@@ -35,5 +37,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra="ignore"
 
 settings = Settings()

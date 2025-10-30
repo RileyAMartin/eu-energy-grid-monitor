@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from confluent_kafka import Producer
+from lxml import etree
 from api.client import BaseFetcher
 from exceptions import InvalidIntervalError, NoDataFoundError
 from .query_configs import BaseQueryConfig
-from eugrid_monitor_core.models import Event
+from eugrid_monitor_core.models import Event, KafkaTopicConfig, DlqErrorTypesEnum, DlqIngestionEvent
+from eugrid_monitor_core.topic_configs import DLQ_INGESTION_EVENTS
 from pydantic import ValidationError
 import logging
 import requests
@@ -29,16 +31,33 @@ class BaseIngestor(ABC):
         """Constructs the URL to use for the ENTSO-E API."""        
         pass
 
-    @property
+    @property 
     @abstractmethod
-    def topic_name(self) -> str:
-        """The Kafka topic to public messages to."""
+    def kafka_topic_config(self) -> KafkaTopicConfig:
+        """The Kafka topic name and value schema that this ingestor type uses."""
         pass
+
+    @property
+    def kafka_dlq_topic_config(self) -> str:
+        """The Kafka topic name and value schema of the DLQ."""
+        return DLQ_INGESTION_EVENTS
+
+    def _produce_dlq_event(self, dlq_event: DlqIngestionEvent):
+        """Produces a DlqIngestionEvent to the DLQ."""
+        try:
+            self._producer.produce(
+                topic=self.kafka_dlq_topic_config.topic_name,
+                key=self._eic_code,
+                value=dlq_event.model_dump_json()
+            )
+        except Exception as e:
+            logging.error(f"Error producing message to DLQ: {e}")
 
     def run_ingestion_cycle(self):
         """A single run of the ingestion logic for this EIC code."""
         try:
             # Get the XML data from the ENTSO-E API
+            start_time, end_time = None, None
             start_time, end_time = self._query_config.get_time_window()
             url_to_fetch = self._build_url(start_time, end_time)
             response = self._fetcher.fetch(url_to_fetch)
@@ -53,7 +72,7 @@ class BaseIngestor(ABC):
             for event in events:
                 event_json = event.model_dump_json()
                 self._producer.produce(
-                    self.topic_name,
+                    self.kafka_topic_config.topic_name,
                     key=self._eic_code,
                     value=event_json
                 )
@@ -63,16 +82,27 @@ class BaseIngestor(ABC):
             self._query_config.report_failure()
         except NoDataFoundError as e:
             logging.warning(f"ENTSO-E API found no data for {self._eic_code}.")
-        except requests.HTTPError as e:
-            if e.response.status_code in [401, 403]:
-                logging.critical(f"Authentication failed for {self._eic_code}.")
-            elif e.response.status_code >= 500:
-                logging.error(f"Server error (5xx) for {self._eic_code}.")
-            else:
-                logging.error(f"Client error ({e.response.status_code}) for {self._eic_code}.")
-        except requests.RequestException as e:
-            logging.error(f"Network request failed for {self._eic_code}.")
-        except ValidationError as e:
-            logging.error(f"Pydantic validation failed for event: {e}")
         except Exception as e:
-            logging.error(f"Unexpected error for EIC {self._eic_code}. Error: {e}", exc_info=True)
+            logging.error(f"Failed to process ingestion cycle for {self._eic_code}: {e}")
+
+            error_type = DlqErrorTypesEnum.OTHER
+            error_msg = str(e)
+
+            if isinstance(e, requests.HTTPError):
+                error_type = DlqErrorTypesEnum.NETWORK
+                error_msg = e.response.text
+            elif isinstance(e, requests.RequestException):
+                error_type = DlqErrorTypesEnum.NETWORK
+            elif isinstance(e, ValidationError):
+                error_type = DlqErrorTypesEnum.VALIDATION
+            elif isinstance(e, etree.LxmlError):
+                error_type = DlqErrorTypesEnum.PARSING
+
+            dlq_event = DlqIngestionEvent(
+                eic_code=self._eic_code,
+                start_time=start_time,
+                end_time=end_time,
+                error_type=error_type,
+                error_msg=error_msg
+            )
+            self._produce_dlq_event(dlq_event)

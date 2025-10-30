@@ -7,7 +7,7 @@ class BaseFetcher(ABC):
 
     @abstractmethod
     def fetch(self, url_to_fetch: str) -> str:
-        """Fetches the content from the API and returns the response text."""
+        """Fetches the content from the URL and returns the response text."""
         pass
 
 class EntsoeApiFetcher(BaseFetcher):

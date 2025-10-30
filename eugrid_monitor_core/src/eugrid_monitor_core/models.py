@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
-from typing import List
+from enum import Enum
+from typing import List, Type
 from pydantic import BaseModel
 
 class Event(BaseModel):
@@ -31,3 +32,23 @@ class EventJSONDecoder(json.JSONEncoder):
         if isinstance(obj, datetime):
             return obj.isoformat()
         return super().default(obj)
+
+class DlqErrorTypesEnum(str, Enum):
+    """The types of errors that can be stored in the DLQ."""
+    NETWORK = "network"
+    VALIDATION = "validation"
+    PARSING = "parsing"
+    OTHER = "other"
+
+class DlqIngestionEvent(Event):
+    """
+        Represents an error message to be uploaded to the DLQ.
+        Must contain eic_code and start/end-time to later refetch the message.
+    """
+    error_type: DlqErrorTypesEnum
+    error_msg: str | None
+
+class KafkaTopicConfig(BaseModel):
+    """Topic and value schema for a particular Kafka topic."""
+    topic_name: str
+    value_schema: Type[Event]
