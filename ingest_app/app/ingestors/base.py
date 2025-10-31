@@ -5,8 +5,8 @@ from lxml import etree
 from api.client import BaseFetcher
 from exceptions import InvalidIntervalError, NoDataFoundError
 from .query_configs import BaseQueryConfig
-from eugrid_monitor_core.models import Event, KafkaTopicConfig, DlqErrorTypesEnum, DlqIngestionEvent
-from eugrid_monitor_core.topic_configs import DLQ_INGESTION_EVENTS
+from eugrid_monitor_core.models import Event, DlqErrorTypesEnum, DlqIngestionEvent
+from eugrid_monitor_core.topics import DLQ_INGESTION
 from pydantic import ValidationError
 import logging
 import requests
@@ -33,20 +33,20 @@ class BaseIngestor(ABC):
 
     @property 
     @abstractmethod
-    def kafka_topic_config(self) -> KafkaTopicConfig:
-        """The Kafka topic name and value schema that this ingestor type uses."""
+    def topic_name(self) -> str:
+        """The Kafka topic name that this ingestor uses."""
         pass
 
     @property
-    def kafka_dlq_topic_config(self) -> str:
-        """The Kafka topic name and value schema of the DLQ."""
-        return DLQ_INGESTION_EVENTS
+    def dlq_topic_name(self) -> str:
+        """The Kafka topic name of the DLQ for all ingestors."""
+        return DLQ_INGESTION
 
     def _produce_dlq_event(self, dlq_event: DlqIngestionEvent):
         """Produces a DlqIngestionEvent to the DLQ."""
         try:
             self._producer.produce(
-                topic=self.kafka_dlq_topic_config.topic_name,
+                topic=self.dlq_topic_name,
                 key=self._eic_code,
                 value=dlq_event.model_dump_json()
             )
@@ -72,7 +72,7 @@ class BaseIngestor(ABC):
             for event in events:
                 event_json = event.model_dump_json()
                 self._producer.produce(
-                    self.kafka_topic_config.topic_name,
+                    self.topic_name,
                     key=self._eic_code,
                     value=event_json
                 )

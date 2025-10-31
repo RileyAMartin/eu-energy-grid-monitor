@@ -4,13 +4,13 @@ from enum import Enum
 from typing import List, Type
 from pydantic import BaseModel
 
-class Event(BaseModel):
+class EntsoeEvent(BaseModel):
     """Represents an event from the ENTSO-E API."""
     eic_code: str
     start_time: datetime
     end_time: datetime
 
-class RawGenerationEvent(Event):
+class RawGenerationEvent(EntsoeEvent):
     """Model to represent a raw generation event consumed from Kafka."""
     quantity_mw: float
     psr_type_code: str
@@ -40,15 +40,10 @@ class DlqErrorTypesEnum(str, Enum):
     PARSING = "parsing"
     OTHER = "other"
 
-class DlqIngestionEvent(Event):
+class DlqIngestionEvent(EntsoeEvent):
     """
         Represents an error message to be uploaded to the DLQ.
         Must contain eic_code and start/end-time to later refetch the message.
     """
     error_type: DlqErrorTypesEnum
     error_msg: str | None
-
-class KafkaTopicConfig(BaseModel):
-    """Topic and value schema for a particular Kafka topic."""
-    topic_name: str
-    value_schema: Type[Event]

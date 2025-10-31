@@ -1,8 +1,8 @@
 from datetime import datetime
 from .base import BaseIngestor
 from parsers.generation import parse_generation_document
-from eugrid_monitor_core.models import RawGenerationEvent, KafkaTopicConfig
-from eugrid_monitor_core.topic_configs import RAW_GENERATION_EVENTS
+from eugrid_monitor_core.models import RawGenerationEvent
+from eugrid_monitor_core.topics import RAW_GENERATION_EVENTS
 
 class GenerationIngestor(BaseIngestor):
     """A class to handle ingestion from the Energy Generation By Type endpoint."""
@@ -12,7 +12,7 @@ class GenerationIngestor(BaseIngestor):
     NSMAP = {"doc": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"} # XML namespace for Market Documents
 
     @property
-    def kafka_topic_config(self) -> KafkaTopicConfig:
+    def topic_name(self) -> str:
         return RAW_GENERATION_EVENTS
 
     def _parse_response(self, response_content: str) -> list[RawGenerationEvent]:
