@@ -30,7 +30,6 @@ class Settings(BaseSettings):
 
     # App constants
     ENTSOE_API_URL: str = "https://web-api.tp.entsoe.eu/api"
-    RAW_GENERATION_TOPIC: str = "raw-generation-events"
     EIC_CODES: List[str] = _load_eic_codes_from_file("config/eic_codes_all.txt")
     EIC_CODES_GENERATION: List[str] = _load_eic_codes_from_file("config/eic_codes_generation.txt")
 

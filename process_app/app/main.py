@@ -1,10 +1,11 @@
-from confluent_kafka import Consumer, KafkaError, KafkaException, Producer
+from confluent_kafka import Consumer, KafkaError, Producer
+from pydantic import ValidationError
 from config import settings
 from eugrid_monitor_core.models import RawGenerationEvent, EventJSONDecoder
-from datetime import datetime
 from processors.generation import process_generation_event
 import logging
 import json
+import eugrid_monitor_core.topics as topics
 
 def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -29,8 +30,8 @@ def main():
 
     # Processing functions and output topics for each raw data topic in the queue
     processing_dispatcher = {
-        settings.RAW_GENERATION_TOPIC: {
-            "enriched_topic": settings.ENRICHED_GENERATION_TOPIC,
+        topics.RAW_GENERATION_EVENTS: {
+            "enriched_topic": topics.ENRICHED_GENERATION_EVENTS,
             "processing_function": process_generation_event
         }
     }
@@ -47,15 +48,18 @@ def main():
                     logging.error(f"Kafka consumer error: {msg.error()}")
                 continue
 
-            try:
-                topic = msg.topic()
-                raw_message = json.loads(msg.value().decode("utf-8"))
+            # Start processing the message
+            topic = msg.topic()
+            processor_config = processing_dispatcher.get(topic)
 
-                # Enrich the raw events according to their topic
-                processor_config = processing_dispatcher.get(topic)
-                if not processor_config:
-                    logging.warning(f"No processor configured for topic: {topic}")
-                    continue
+            if not processor_config:
+                logging.warning(f"No processor configured for topic: {topic}")
+                consumer.commit(message=msg, asynchronous=False)
+                continue
+            
+            try:
+                # Convert the raw event to a sequence of enriched events
+                raw_message = json.loads(msg.value().decode("utf-8"))
                 raw_event = RawGenerationEvent.model_validate(raw_message)
                 enriched_events = processor_config["processing_function"](raw_event)
 
@@ -69,11 +73,20 @@ def main():
                     )
 
                 # Commit the offset
-                consumer.commit(asynchronous=False)
+                consumer.commit(message=msg, asynchronous=False)
 
-            except (json.JSONDecodeError, Exception) as e:
+            except (json.JSONDecodeError, ValidationError, Exception) as e:
+                # On an exception, send the original message to the DLQ                
                 logging.error(f"Failed to process message: {e}\nMessage Value: {msg.value()}")
-                consumer.commit(asynchronous=False)
+                try:
+                    producer.produce(
+                        topics.DLQ_PROCESSING,
+                        value=msg.value()
+                    )
+                except Exception as dlq_e:
+                    logging.error(f"Couldn't produce message to DLQ. Error: {dlq_e}")
+                    continue
+                consumer.commit(message=msg, asynchronous=False)
     except KeyboardInterrupt:
         logging.info("Shutting down consumer...")
     finally:

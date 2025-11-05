@@ -2,11 +2,12 @@ from typing import List
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 from eugrid_monitor_core.models import EnrichedGenerationEvent
+from eugrid_monitor_core.topics import ENRICHED_GENERATION_EVENTS
 
 load_dotenv()
 
 DB_MAPPINGS = {
-    "enriched-generation-events": {
+    ENRICHED_GENERATION_EVENTS: {
         "table_name": "energy_generation_events",
         "columns": [
             "eic_code",

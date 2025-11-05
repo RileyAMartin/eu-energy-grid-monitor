@@ -5,7 +5,7 @@ from lxml import etree
 from api.client import BaseFetcher
 from exceptions import InvalidIntervalError, NoDataFoundError
 from .query_configs import BaseQueryConfig
-from eugrid_monitor_core.models import Event, DlqErrorTypesEnum, DlqIngestionEvent
+from eugrid_monitor_core.models import EntsoeEvent, DlqErrorTypesEnum, DlqIngestionEvent
 from eugrid_monitor_core.topics import DLQ_INGESTION
 from pydantic import ValidationError
 import logging
@@ -22,7 +22,7 @@ class BaseIngestor(ABC):
         self._api_url = api_url
 
     @abstractmethod
-    def _parse_response(self, response_content: str) -> list[Event]:
+    def _parse_response(self, response_content: str) -> list[EntsoeEvent]:
         """Parses the XML response (market document) into a list of events."""
         pass
 
@@ -83,6 +83,7 @@ class BaseIngestor(ABC):
         except NoDataFoundError as e:
             logging.warning(f"ENTSO-E API found no data for {self._eic_code}.")
         except Exception as e:
+            # All other exceptions are added to the DLQ.
             logging.error(f"Failed to process ingestion cycle for {self._eic_code}: {e}")
 
             error_type = DlqErrorTypesEnum.OTHER

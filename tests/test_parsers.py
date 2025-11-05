@@ -1,54 +1,61 @@
-from ingest_app.app.parsers import generation
+from datetime import datetime, timedelta, timezone
+from eugrid_monitor_core.models import RawGenerationEvent
+from ingest_app.app.parsers.generation import parse_generation_document
 import pytest
 
+@pytest.fixture
+def generation_document():
+    with open("tests/test_data/generation-test.xml") as f:
+        return f.read()
 
-# @pytest.fixture
-# def xml_content():
-#     with open("tests/test_data/generation-test-curvetype-A01.xml", "rb") as f:
-#         return f.read()
 
+def test_parse_generation_document(generation_document):
+    # Attributes of test events
+    eic_code = "10Y1001A1001A016"
+    source_document_mrid = "a823f80efb254f78afd9d247146f015b"
+    measurement_unit = "MAW"
+    quantity_mw_a03 = 10
+    quantity_mw_a01 = 20
+    psr_type_code_a01 = "B04"
+    psr_type_code_a03 = "B05"
+    initial_start_time = datetime(2025, 8, 20, 0, 0, tzinfo=timezone.utc) # 20/08/2025, 00:00
+    start_time = initial_start_time
 
-@pytest.mark.parametrize(
-    "input_filename, expected_record_count, expected_start_time, expected_end_time, expected_psr_type_codes, expected_quantities",
-    [
-        (
-            "generation-test-curvetype-A01-30min.xml",
-            5,
-            "2025-08-20T00:00:00+00:00",
-            "2025-08-20T00:30:00+00:00",
-            ["B04", "B05", "B06", "B20", "B19"],
-            [80.0, 0.0, 0.0, 0.0, 92.0],
-        ),
-    ],
-)
-def test_parse_generation_document(
-    input_filename,
-    expected_record_count,
-    expected_start_time,
-    expected_end_time,
-    expected_psr_type_codes,
-    expected_quantities,
-):
+    test_events = []
 
-    file_path = f"tests/test_data/{input_filename}"    
-    with open(file_path, "rb") as f:
-        xml_content = f.read()
-    events = generation.parse_generation_document(xml_content)
+    # Set up A01 test events
+    for _ in range(4):
+        end_time = start_time + timedelta(minutes=15)
+        new_event = RawGenerationEvent(
+            eic_code=eic_code,
+            source_document_mrid=source_document_mrid,
+            measurement_unit=measurement_unit,
+            start_time = start_time,
+            end_time = end_time,
+            quantity_mw = quantity_mw_a01,
+            psr_type_code=psr_type_code_a01
+        )
+        start_time = end_time
+        test_events.append(new_event)
 
-    assert len(events) == expected_record_count
+    # Set up A03 events
+    start_time = initial_start_time
+    for _ in range(4):
+        end_time = start_time + timedelta(minutes=15)
+        new_event = RawGenerationEvent(
+            eic_code=eic_code,
+            source_document_mrid=source_document_mrid,
+            measurement_unit=measurement_unit,
+            start_time = start_time,
+            end_time = end_time,
+            quantity_mw = quantity_mw_a03,
+            psr_type_code=psr_type_code_a03
+        )
+        start_time = end_time
+        test_events.append(new_event)
 
-    # Start and End Times
-    start_times = {e["start_time"] for e in events}
-    end_times = {e["end_time"] for e in events}
-    assert len(start_times) == 1
-    assert len(end_times) == 1
-    assert start_times.pop() == expected_start_time
-    assert end_times.pop() == expected_end_time
+    events = parse_generation_document(generation_document)  # Events parsed from the XML file
 
-    # PSR-Type Codes
-    psr_type_codes = [e["psr_type_code"] for e in events]
-    assert psr_type_codes == expected_psr_type_codes
-
-    # Quantities
-    quantities = [e["quantity_mw"] for e in events]
-    assert quantities == expected_quantities
+    assert len(events) == len(test_events)
+    for e in events:
+        assert e in test_events

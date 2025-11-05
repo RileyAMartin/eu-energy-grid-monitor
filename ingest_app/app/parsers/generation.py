@@ -133,13 +133,13 @@ def _parse_period_to_events(
     return events
 
 
-def parse_generation_document(xml_content: str) -> list[dict]:
+def parse_generation_document(xml_str: str) -> list[dict]:
     """
     Parses a full Generation Load Document XML and returns a single,
     flat list of all individual generation events.
     """
     try:
-        doc_xml = etree.fromstring(xml_content)
+        doc_xml = etree.fromstring(xml_str)
     except etree.XMLSyntaxError as e:
         logging.error(f"Invalid XML content: {e}")
         return []

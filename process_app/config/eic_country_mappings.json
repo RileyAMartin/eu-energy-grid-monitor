@@ -111,7 +111,8 @@
         "eic_long_name": "Denmark",
         "countries": [
             "dk"
-        ]
+        ],
+        "bidding_zone": ""
     },
     "10Y1001A1001A66F": {
         "eic_display_name": "IT-GR",

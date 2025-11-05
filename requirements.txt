@@ -1,0 +1,10 @@
+-e eugrid_monitor_core
+lxml
+confluent-kafka
+python-dateutil
+python-dotenv
+requests
+pydantic
+pydantic_settings
+psycopg2
+pytest

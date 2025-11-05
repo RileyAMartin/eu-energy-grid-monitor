@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from enum import Enum
-from typing import List, Type
+from typing import List
 from pydantic import BaseModel
 
 class EntsoeEvent(BaseModel):
