@@ -1,7 +1,7 @@
 from typing import List
 from .utils import split_event
 from eugrid_monitor_core.models import RawGenerationEvent, EnrichedGenerationEvent
-from config import settings
+from ..config import settings
 
 def process_generation_event(raw_event: RawGenerationEvent) -> List[EnrichedGenerationEvent]:
     """
@@ -37,6 +37,10 @@ def process_generation_event(raw_event: RawGenerationEvent) -> List[EnrichedGene
     )
 
     # Split the event into 15 minute intervals
-    events = split_event(enriched_event, 15)
+    events = split_event(
+        enriched_event,
+        new_duration_mins=15,
+        fields_to_divide=["quantity_mw", "carbon_output_kg_co2e"]
+    )
 
     return events

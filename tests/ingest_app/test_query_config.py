@@ -37,6 +37,10 @@ def test_get_time_window_already_attempted(config):
 
 @freeze_time("2025-01-02 10:15:00")
 def test_get_time_window_prioritises_retry_queue(config):
+    """
+    Ensure that the query config prioritises times in the retry queue
+    over anything else.
+    """
     
     # Failed jobs that appear in the retry queue
     retry_job_1 = datetime(2024, 12, 31, 0, 0, 0, tzinfo=timezone.utc)

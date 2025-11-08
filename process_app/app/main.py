@@ -2,10 +2,10 @@ from confluent_kafka import Consumer, KafkaError, Producer
 from pydantic import ValidationError
 from config import settings
 from eugrid_monitor_core.models import RawGenerationEvent, EventJSONDecoder
-from processors.generation import process_generation_event
+import eugrid_monitor_core.topics as topics
+from .processors.generation import process_generation_event
 import logging
 import json
-import eugrid_monitor_core.topics as topics
 
 def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

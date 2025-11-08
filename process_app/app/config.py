@@ -1,8 +1,16 @@
+import json
+import os
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
-import json
 
 load_dotenv()
+
+# File paths for config files
+_app_dir_path = os.path.dirname(os.path.abspath(__file__))
+_config_dir_path = os.path.join(_app_dir_path, "..", "config")
+_EIC_MAPPINGS_FILE_PATH = os.path.join(_config_dir_path, "eic_mappings.json")
+_PSR_TYPE_MAPPINGS_FILE_PATH = os.path.join(_config_dir_path, "psr_type_mappings.json")
+
 
 def _load_eic_codes_from_json(filepath: str) -> dict:
     try:        
@@ -37,11 +45,12 @@ class Settings(BaseSettings):
     # Application constants
     RAW_GENERATION_TOPIC: str = "raw-generation-events"
     ENRICHED_GENERATION_TOPIC: str = "enriched-generation-events"
-    EIC_MAPPINGS: dict = _load_eic_codes_from_json("config/eic_country_mappings.json")
-    PSR_TYPE_MAPPINGS: dict = _load_psr_types_from_json("config/psr_type_mappings.json")
+    EIC_MAPPINGS: dict = _load_eic_codes_from_json(_EIC_MAPPINGS_FILE_PATH)
+    PSR_TYPE_MAPPINGS: dict = _load_psr_types_from_json(_PSR_TYPE_MAPPINGS_FILE_PATH)
     
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"
 
 settings = Settings()
