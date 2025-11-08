@@ -1,8 +1,8 @@
 from confluent_kafka import Producer
-from ingestors.generation import GenerationIngestor
-from ingestors.query_configs import DailyQueryConfig
-from api.client import EntsoeApiFetcher
-from config import settings
+from .ingestors.generation import GenerationIngestor
+from .query_configs import DailyAdaptableQueryConfig
+from .api.client import EntsoeApiFetcher
+from .config import settings
 import logging
 import time
 
@@ -22,12 +22,11 @@ def main():
         'sasl.password': settings.KAFKA_SASL_PASSWORD,        
     })
     fetcher = EntsoeApiFetcher(settings.ENTSOE_API_KEY)
-    query_config = DailyQueryConfig()
-    
+
     # Initialise the ingestion tasks
-    # For now, we only do ingestion for generation metrics, but will add more later
     tasks = []
     for eic_code in settings.EIC_CODES_GENERATION:
+        query_config = DailyAdaptableQueryConfig(eic_code)
         ingestor = GenerationIngestor(
             producer,
             eic_code,
@@ -52,8 +51,8 @@ def main():
             else:
                 logging.info("--- All messages delivered successfully to Kafka. ---")
 
-            logging.info("--- Daily cycle complete. Sleeping for 24 hours ---")
-            time.sleep(86400) # 1 day - TODO: implement adaptive sleeping and then cron jobs
+            logging.info("--- Daily cycle complete. Sleeping for 1 hour ---")
+            time.sleep(3600) # 1 hour - TODO: implement cron jobs
     except KeyboardInterrupt as e:
         logging.info("--- Shutting down ingestion ---")
         producer.flush()

@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from confluent_kafka import Producer
 from lxml import etree
-from api.client import BaseFetcher
-from exceptions import InvalidIntervalError, NoDataFoundError
-from .query_configs import BaseQueryConfig
+from ..api.client import BaseFetcher
+from ..exceptions import InvalidIntervalError, NoDataFoundError
+from ..query_configs import BaseQueryConfig
 from eugrid_monitor_core.models import EntsoeEvent, DlqErrorTypesEnum, DlqIngestionEvent
 from eugrid_monitor_core.topics import DLQ_INGESTION
 from pydantic import ValidationError
@@ -59,6 +59,12 @@ class BaseIngestor(ABC):
             # Get the XML data from the ENTSO-E API
             start_time, end_time = None, None
             start_time, end_time = self._query_config.get_time_window()
+
+            # This interval has already been fetched
+            if start_time is None:
+                logging.debug(f"No new work for {self._eic_code} - skipping cycle.")
+                return
+
             url_to_fetch = self._build_url(start_time, end_time)
             response = self._fetcher.fetch(url_to_fetch)
 
@@ -79,9 +85,10 @@ class BaseIngestor(ABC):
 
         except InvalidIntervalError as e:
             logging.warning(f"Invalid query duration for {self._eic_code}: {e}")
-            self._query_config.report_failure()
+            self._query_config.report_failure(start_time, e)
         except NoDataFoundError as e:
-            logging.warning(f"ENTSO-E API found no data for {self._eic_code}.")
+            self._query_config.report_failure(start_time, e)
+
         except Exception as e:
             # All other exceptions are added to the DLQ.
             logging.error(f"Failed to process ingestion cycle for {self._eic_code}: {e}")

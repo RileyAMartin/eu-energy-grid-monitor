@@ -1,6 +1,6 @@
 import requests
 from abc import ABC, abstractmethod
-from exceptions import InvalidIntervalError, NoDataFoundError
+from ..exceptions import InvalidIntervalError, NoDataFoundError
 
 class BaseFetcher(ABC):
     """An abstract base class for all API fetchers."""

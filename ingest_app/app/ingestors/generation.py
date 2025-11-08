@@ -1,6 +1,6 @@
 from datetime import datetime
 from .base import BaseIngestor
-from parsers.generation import parse_generation_document
+from ..parsers.generation import parse_generation_document
 from eugrid_monitor_core.models import RawGenerationEvent
 from eugrid_monitor_core.topics import RAW_GENERATION_EVENTS
 

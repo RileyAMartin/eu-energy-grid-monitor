@@ -8,3 +8,5 @@ pydantic
 pydantic_settings
 psycopg2
 pytest
+pytest-mock
+freezegun
