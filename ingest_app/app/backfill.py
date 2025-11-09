@@ -1,17 +1,14 @@
-from confluent_kafka import Producer
-from .ingestors.generation import GenerationIngestor
-from .query_configs import DailyAdaptableQueryConfig
-from .api.client import EntsoeApiFetcher
-from .config import settings
 import logging
 import time
+from confluent_kafka import Producer
+from .config import settings
+from .ingestors.generation import GenerationIngestor
+from .api.client import EntsoeApiFetcher
+from .query_configs import YearlyBackfillQueryConfig
 
+def backfill():
+    """Ingests all possible data from the period between today and one year prior."""
 
-def main():
-    """
-    Sets up the environment and runs the ingestion cycle for the ENTSOE-API.
-    For now only energy generation metrics are ingested, but more will be added.
-    """
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
     producer = Producer({
@@ -26,7 +23,7 @@ def main():
     # Initialise the ingestion tasks
     tasks = []
     for eic_code in settings.EIC_CODES_GENERATION:
-        query_config = DailyAdaptableQueryConfig(eic_code)
+        query_config = YearlyBackfillQueryConfig(eic_code)
         ingestor = GenerationIngestor(
             producer,
             eic_code,
@@ -51,12 +48,9 @@ def main():
             else:
                 logging.info("--- All messages delivered successfully to Kafka. ---")
 
-            logging.info("--- Cycle complete. Sleeping for 1 hour ---")
-            time.sleep(3600) # 1 hour - TODO: implement cron jobs
     except KeyboardInterrupt as e:
         logging.info("--- Shutting down ingestion ---")
         producer.flush()
 
-
 if __name__ == "__main__":
-    main()
+    backfill()

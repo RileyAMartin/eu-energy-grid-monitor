@@ -1,5 +1,5 @@
-from typing import List
 from dotenv import load_dotenv
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 from eugrid_monitor_core.models import EnrichedGenerationEvent
 from eugrid_monitor_core.topics import ENRICHED_GENERATION_EVENTS
@@ -49,9 +49,8 @@ class Settings(BaseSettings):
     MAX_BATCH_SIZE: int = 1000
     MAX_BATCH_INTERVAL_SECONDS: int = 10
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = ConfigDict(
         extra="ignore"
+    )
 
 settings = Settings()

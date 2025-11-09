@@ -12,7 +12,7 @@ class BaseQueryConfig(ABC):
         """Returns the start and end datetime for the next API query, based on the current time."""
         pass
 
-    def report_failure(self, error: Exception):
+    def report_failure(self, start_time: datetime, error: Exception):
         """
         Updates the config based on the given exception.
         """
@@ -69,5 +69,22 @@ class DailyAdaptableQueryConfig(BaseQueryConfig):
     def report_failure(self, start_time: datetime, error: Exception):
         """Adds a failed job to the retry queue."""
         if isinstance(error, NoDataFoundError):
-            logging.warning(f"No data for {self._eic_code} on {start_time.date()}. Adding to retry queue.")
             self._retry_queue.append(start_time)
+
+class YearlyBackfillQueryConfig(BaseQueryConfig):
+    """Query config to backfill data from up to a year prior."""
+    
+    def get_time_window(self) -> tuple[datetime, datetime]:
+        """
+        Returns the time window between the start of yesterday
+        and exactly one year prior.
+        """
+        start_of_today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0)
+        start_of_yesterday = start_of_today - relativedelta(days=1)
+        one_year_prior = start_of_yesterday - relativedelta(years=1)
+
+        return (one_year_prior, start_of_yesterday)
+    
+    def report_failure(self, start_time: datetime, error: Exception):
+        """This only logs errors to keep track of the script as it's running."""
+        logging.error(f"Unable to handle date {start_time.isoformat()}: {error}")

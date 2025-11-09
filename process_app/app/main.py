@@ -1,11 +1,10 @@
-from confluent_kafka import Consumer, KafkaError, Producer
-from pydantic import ValidationError
-from config import settings
-from eugrid_monitor_core.models import RawGenerationEvent, EventJSONDecoder
-import eugrid_monitor_core.topics as topics
-from .processors.generation import process_generation_event
 import logging
 import json
+from datetime import datetime, timezone
+from confluent_kafka import Consumer, KafkaError, Producer
+from eugrid_monitor_core.models import RawGenerationEvent, DlqProcessingEvent
+from eugrid_monitor_core.topics import DLQ_PROCESSING
+from .config import settings
 
 def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -28,16 +27,8 @@ def main():
     producer = Producer(producer_config)
     consumer = Consumer(consumer_config)
 
-    # Processing functions and output topics for each raw data topic in the queue
-    processing_dispatcher = {
-        topics.RAW_GENERATION_EVENTS: {
-            "enriched_topic": topics.ENRICHED_GENERATION_EVENTS,
-            "processing_function": process_generation_event
-        }
-    }
-
     # Enrich raw events
-    consumer.subscribe(list(processing_dispatcher.keys()))
+    consumer.subscribe(settings.RAW_TOPICS)
     try:
         while True:
             msg = consumer.poll(timeout=1.0)
@@ -50,41 +41,51 @@ def main():
 
             # Start processing the message
             topic = msg.topic()
-            processor_config = processing_dispatcher.get(topic)
+            processor_config = settings.PROCESSING_DISPATCHER.get(topic)
 
             if not processor_config:
                 logging.warning(f"No processor configured for topic: {topic}")
                 consumer.commit(message=msg, asynchronous=False)
                 continue
-            
+
             try:
                 # Convert the raw event to a sequence of enriched events
-                raw_message = json.loads(msg.value().decode("utf-8"))
-                raw_event = RawGenerationEvent.model_validate(raw_message)
-                enriched_events = processor_config["processing_function"](raw_event)
+                model = processor_config["model"]
+                processing_function = processor_config["processing_function"]
+                raw_event = model.model_validate(json.loads(msg.value().decode("utf-8")))
+                enriched_events = processing_function(
+                    raw_event,
+                    settings.PSR_TYPE_MAPPINGS,
+                    settings.EIC_MAPPINGS
+                )
 
                 # Produce the enriched events
                 for event in enriched_events:
-                    event_dict = event.model_dump(mode="json")
                     producer.produce(
                         processor_config["enriched_topic"],
                         key=event.eic_code.encode("utf-8"),
-                        value=json.dumps(event_dict, cls=EventJSONDecoder)
+                        value=event.model_dump_json()
                     )
 
                 # Commit the offset
                 consumer.commit(message=msg, asynchronous=False)
 
-            except (json.JSONDecodeError, ValidationError, Exception) as e:
-                # On an exception, send the original message to the DLQ                
+            # On an exception, send the original message to the DLQ
+            except Exception as e:
                 logging.error(f"Failed to process message: {e}\nMessage Value: {msg.value()}")
                 try:
+                    dlq_event = DlqProcessingEvent(
+                        failed_at=datetime.now(timezone.utc),
+                        error_msg=str(e),
+                        error_type=type(e).__name__,
+                        original_message=msg.value()
+                    )
                     producer.produce(
-                        topics.DLQ_PROCESSING,
-                        value=msg.value()
+                        topic=DLQ_PROCESSING,
+                        value=dlq_event.model_dump_json()
                     )
                 except Exception as dlq_e:
-                    logging.error(f"Couldn't produce message to DLQ. Error: {dlq_e}")
+                    logging.error(f"Couldn't produce message to DLQ. Error: {dlq_e}", exc_info=True)
                     continue
                 consumer.commit(message=msg, asynchronous=False)
     except KeyboardInterrupt:

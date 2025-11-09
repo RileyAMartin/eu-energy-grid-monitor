@@ -1,15 +1,12 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from confluent_kafka import Producer
-from lxml import etree
 from ..api.client import BaseFetcher
 from ..exceptions import InvalidIntervalError, NoDataFoundError
 from ..query_configs import BaseQueryConfig
-from eugrid_monitor_core.models import EntsoeEvent, DlqErrorTypesEnum, DlqIngestionEvent
+from eugrid_monitor_core.models import EntsoeEvent, DlqIngestionEvent
 from eugrid_monitor_core.topics import DLQ_INGESTION
-from pydantic import ValidationError
 import logging
-import requests
 
 class BaseIngestor(ABC):
     """An abstract base class for all ENTSO-E ingestion services."""
@@ -37,22 +34,6 @@ class BaseIngestor(ABC):
         """The Kafka topic name that this ingestor uses."""
         pass
 
-    @property
-    def dlq_topic_name(self) -> str:
-        """The Kafka topic name of the DLQ for all ingestors."""
-        return DLQ_INGESTION
-
-    def _produce_dlq_event(self, dlq_event: DlqIngestionEvent):
-        """Produces a DlqIngestionEvent to the DLQ."""
-        try:
-            self._producer.produce(
-                topic=self.dlq_topic_name,
-                key=self._eic_code,
-                value=dlq_event.model_dump_json()
-            )
-        except Exception as e:
-            logging.error(f"Error producing message to DLQ: {e}")
-
     def run_ingestion_cycle(self):
         """A single run of the ingestion logic for this EIC code."""
         try:
@@ -76,41 +57,35 @@ class BaseIngestor(ABC):
 
             # Add the events to Kafka
             for event in events:
-                event_json = event.model_dump_json()
                 self._producer.produce(
                     self.topic_name,
                     key=self._eic_code,
-                    value=event_json
+                    value=event.model_dump_json()
                 )
 
         except InvalidIntervalError as e:
-            logging.warning(f"Invalid query duration for {self._eic_code}: {e}")
+            logging.warning(f"Invalid query duration for {self._eic_code} ({start_time.isoformat()} - {end_time.isoformat()})")
             self._query_config.report_failure(start_time, e)
         except NoDataFoundError as e:
+            logging.warning(f"No data found for {self._eic_code} at {start_time.isoformat()}")
             self._query_config.report_failure(start_time, e)
 
+        # All other exceptions are added to the DLQ.
         except Exception as e:
-            # All other exceptions are added to the DLQ.
             logging.error(f"Failed to process ingestion cycle for {self._eic_code}: {e}")
-
-            error_type = DlqErrorTypesEnum.OTHER
-            error_msg = str(e)
-
-            if isinstance(e, requests.HTTPError):
-                error_type = DlqErrorTypesEnum.NETWORK
-                error_msg = e.response.text
-            elif isinstance(e, requests.RequestException):
-                error_type = DlqErrorTypesEnum.NETWORK
-            elif isinstance(e, ValidationError):
-                error_type = DlqErrorTypesEnum.VALIDATION
-            elif isinstance(e, etree.LxmlError):
-                error_type = DlqErrorTypesEnum.PARSING
-
-            dlq_event = DlqIngestionEvent(
-                eic_code=self._eic_code,
-                start_time=start_time,
-                end_time=end_time,
-                error_type=error_type,
-                error_msg=error_msg
-            )
-            self._produce_dlq_event(dlq_event)
+            try:
+                dlq_event = DlqIngestionEvent(
+                    eic_code=self._eic_code,
+                    start_time=start_time,
+                    end_time=end_time,
+                    failed_at=datetime.now(timezone.utc),
+                    error_type=type(e).__name__,
+                    error_msg=str(e)
+                )
+                self._producer.produce(
+                    topic=DLQ_INGESTION,
+                    key=self._eic_code,
+                    value=dlq_event.model_dump_json()
+                )
+            except Exception as dlq_e:
+                logging.error(f"Couldn't produce error to DLQ: {dlq_e}", exc_info=True)

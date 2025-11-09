@@ -1,8 +1,9 @@
 import os
-from dotenv import load_dotenv
-from pydantic_settings import BaseSettings
-from typing import List
 import logging
+from typing import List
+from dotenv import load_dotenv
+from pydantic import ConfigDict
+from pydantic_settings import BaseSettings
 
 load_dotenv()
 
@@ -40,9 +41,8 @@ class Settings(BaseSettings):
     EIC_CODES: List[str] = _load_eic_codes_from_file(_EIC_CODES_FILE_PATH)
     EIC_CODES_GENERATION: List[str] = _load_eic_codes_from_file(_GENERATION_EIC_CODES_FILE_PATH)
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = ConfigDict(
         extra="ignore"
+    )
 
 settings = Settings()
