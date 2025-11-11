@@ -1,7 +1,6 @@
 import base64
 import json
 from datetime import datetime
-from enum import Enum
 from typing import List
 from pydantic import BaseModel, field_validator
 
@@ -34,13 +33,6 @@ class EventJSONDecoder(json.JSONEncoder):
             return obj.isoformat()
         return super().default(obj)
 
-class DlqErrorTypesEnum(str, Enum):
-    """The types of errors that can be stored in the DLQ."""
-    NETWORK = "network"
-    VALIDATION = "validation"
-    PARSING = "parsing"
-    OTHER = "other"
-
 class DlqIngestionEvent(BaseModel):
     """
         Represents an error message to be uploaded to the ingestion DLQ.
@@ -69,4 +61,3 @@ class DlqProcessingEvent(BaseModel):
         if isinstance(v, bytes):
             return base64.b64encode(v).decode("utf-8")
         return v
-
