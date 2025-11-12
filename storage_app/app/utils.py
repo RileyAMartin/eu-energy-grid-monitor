@@ -3,14 +3,20 @@ import logging
 from typing import List
 
 def perform_bulk_insert(conn, table_name: str, columns: List[str], conflict_columns: List[str], events: List[dict]):
+    """
+    Insert the event into the database.
+    """
+    
     if not events:
         return 0
 
+    # Psycopg2 requires that the values be tuples rather than dicts
     data_tuples = [
         tuple(event.get(col) for col in columns)
         for event in events
     ]
 
+    # Format the SQL query
     if not conflict_columns:
         insert_query = f"""
             INSERT INTO {table_name} ({", ".join(f'"{c}"' for c in columns)})
