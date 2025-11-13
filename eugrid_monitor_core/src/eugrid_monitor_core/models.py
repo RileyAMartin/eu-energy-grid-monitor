@@ -61,3 +61,20 @@ class DlqProcessingEvent(BaseModel):
         if isinstance(v, bytes):
             return base64.b64encode(v).decode("utf-8")
         return v
+
+class DlqStorageEvent(BaseModel):
+    """A record for a message that failed validation before storage."""
+    failed_at: datetime
+    error_type: str
+    error_msg: str | None
+    original_message: str
+
+    @field_validator("original_message", mode="before")
+    def encode_message_as_base64(cls, v):
+        """
+        If the original message is passed in bytes (likely a JSON validation error),
+        they'll be converted to a Base64-encoded string.
+        """
+        if isinstance(v, bytes):
+            return base64.b64encode(v).decode("utf-8")
+        return v

@@ -45,7 +45,6 @@ class DailyAdaptableQueryConfig(BaseQueryConfig):
         Returns the next time window to process.
         Prioritizes the retry queue. Only fetches a new day once.
         """
-        
         # If possible, return the first entry in the retry queue
         if self._retry_queue:
             start_date_to_retry = self._retry_queue.pop(0)
@@ -88,3 +87,26 @@ class YearlyBackfillQueryConfig(BaseQueryConfig):
     def report_failure(self, start_time: datetime, error: Exception):
         """This only logs errors to keep track of the script as it's running."""
         logging.error(f"Unable to handle date {start_time.isoformat()}: {error}")
+
+class RollingBackfillQueryConfig(BaseQueryConfig):
+    """
+    Query config to fetch a rolling X-day window prior to today.
+    Backfilling by X days means we avoid issues caused by downtime and issues
+    with delays in data being uploaded to the API.
+    """
+    def __init__(self, eic_code: str, days_to_backfill: int = 3):
+        self._eic_code = eic_code
+        self._days_to_backfill = days_to_backfill
+
+    def get_time_window(self) -> tuple[datetime, datetime]:
+        """
+        Returns the time window between midnight today and midnight X days ago.
+        """
+        end_time = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0)
+        start_time = end_time - relativedelta(days=self._days_to_backfill)
+
+        return (start_time, end_time)
+    
+    def report_failure(self, start_time: datetime, error: Exception):
+        """This only logs errors."""
+        logging.warning(f"[BackfillJob] Failed to fetch {self._eic_code} for window {start_time.isoformat()}: {error}")

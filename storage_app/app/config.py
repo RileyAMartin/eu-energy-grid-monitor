@@ -23,7 +23,8 @@ DB_MAPPINGS = {
             "end_time"
         ],
         "model": EnrichedGenerationEvent,
-        "conflict_columns": []
+        # The combo of these columns must be unique in the DB
+        "conflict_columns": ["eic_code", "start_time", "psr_type_code"]
     }
 }
 

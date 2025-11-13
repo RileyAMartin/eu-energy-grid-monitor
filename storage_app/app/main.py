@@ -2,14 +2,14 @@ import json
 import sys
 import time
 import psycopg2
-import psycopg2.extras
 import logging
 from confluent_kafka import Consumer, KafkaError, Producer
 from pydantic import ValidationError
-from typing import List
+from datetime import datetime, timezone
 from .config import settings
 from .utils import perform_bulk_insert
 from eugrid_monitor_core.topics import DLQ_STORAGE
+from eugrid_monitor_core.models import DlqStorageEvent
 
 def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -76,15 +76,21 @@ def main():
 
             except (json.JSONDecodeError, ValidationError) as e:
                 logging.error(f"Failed to process message: {e}")
-
                 try:
+                    dlq_event = DlqStorageEvent(
+                        failed_at=datetime.now(timezone.utc),
+                        error_msg=str(e),
+                        error_type=type(e).__name__,
+                        original_message=msg.value()
+                    )
+
                     # Produce the original message to the DLQ
                     producer.produce(
                         DLQ_STORAGE,
                         value=msg.value()
                     )
                 except Exception as dlq_e:
-                    logging.critical(f"FATAL: Couldn't produce message to DLQ. Error: {e}")
+                    logging.critical(f"FATAL: Couldn't produce message to DLQ. Error: {dlq_e}")
                     continue
                 consumer.commit(asynchronous=False)
                 continue

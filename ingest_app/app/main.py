@@ -1,17 +1,28 @@
+import time
+import logging
+from datetime import datetime, timezone
+from dateutil.relativedelta import relativedelta
 from confluent_kafka import Producer
 from .ingestors.generation import GenerationIngestor
-from .query_configs import DailyAdaptableQueryConfig
+from .query_configs import RollingBackfillQueryConfig
 from .api.client import EntsoeApiFetcher
 from .config import settings
-import logging
-import time
+
+def _get_next_run_timestamp(target_hour_utc: int) -> float:
+    """
+    Calculates the timestamp for the next cycle based on the target hour (1 AM UTC).
+    """
+    now_utc = datetime.now(timezone.utc)
+    next_run_utc = now_utc.replace(hour=target_hour_utc, minute=0, second=0, microsecond=0)
+
+    # If we're already past 1 AM UTC today, the next run is tomorrow
+    if now_utc >= next_run_utc:
+        next_run_utc += relativedelta(days=1)
+
+    return next_run_utc.timestamp()
 
 
 def main():
-    """
-    Sets up the environment and runs the ingestion cycle for the ENTSOE-API.
-    For now only energy generation metrics are ingested, but more will be added.
-    """
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
     producer = Producer({
@@ -23,40 +34,50 @@ def main():
     })
     fetcher = EntsoeApiFetcher(settings.ENTSOE_API_KEY)
 
-    # Initialise the ingestion tasks
     tasks = []
+    
     for eic_code in settings.EIC_CODES_GENERATION:
-        query_config = DailyAdaptableQueryConfig(eic_code)
-        ingestor = GenerationIngestor(
-            producer,
-            eic_code,
-            fetcher,
-            query_config,
-            settings.ENTSOE_API_URL
-        )
-        tasks.append(ingestor)
+        backfill_config = RollingBackfillQueryConfig(eic_code, days_to_backfill=3)
+        tasks.append(GenerationIngestor(
+            producer, eic_code, fetcher, backfill_config, settings.ENTSOE_API_URL
+        ))
 
-    # Ingestion loop
+    INGESTION_INTERVAL_SECONDS = 86400  # 24 hours
+    TARGET_HOUR_UTC = 1  # 1:00 AM UTC
+
+    # Calculate the first run time
+    next_run_timestamp = _get_next_run_timestamp(TARGET_HOUR_UTC)
+    
+    logging.info(f"--- Starting daily ingestion service ---")
+    logging.info(f"Next run scheduled for: {datetime.fromtimestamp(next_run_timestamp, tz=timezone.utc)}")
+
     try:
         while True:
-            logging.info("--- Starting new daily ingestion cycle ---")
+            current_time = time.time()
 
-            for task in tasks:
-                task.run_ingestion_cycle()
-                time.sleep(3)
-            
-            remaining_messages = producer.flush()
-            if remaining_messages > 0:
-                logging.warning(f"--- {remaining_messages} messages failed to deliver to Kafka. ---")
-            else:
-                logging.info("--- All messages delivered successfully to Kafka. ---")
+            # Check timer to see if we can run
+            if current_time >= next_run_timestamp:
+                logging.info("--- Starting new DAILY ingestion cycle ---")
+                for task in tasks:
+                    task.run_ingestion_cycle()
+                    time.sleep(3)
+                
+                logging.info("--- DAILY cycle complete ---")
+                
+                next_run_timestamp += INGESTION_INTERVAL_SECONDS
+                logging.info(f"Next run scheduled for: {datetime.fromtimestamp(next_run_timestamp, tz=timezone.utc)}")
 
-            logging.info("--- Cycle complete. Sleeping for 1 hour ---")
-            time.sleep(3600) # 1 hour - TODO: implement cron jobs
-    except KeyboardInterrupt as e:
+                remaining_messages = producer.flush(timeout=10.0)
+                if remaining_messages > 0:
+                    logging.warning(f"--- {remaining_messages} messages failed to deliver to Kafka. ---")
+
+            # Sleep until the next run, or 5 minutes, whichever is shorter
+            sleep_duration = max(0, min(next_run_timestamp - time.time(), 300))
+            time.sleep(sleep_duration)
+
+    except KeyboardInterrupt:
         logging.info("--- Shutting down ingestion ---")
         producer.flush()
-
 
 if __name__ == "__main__":
     main()
