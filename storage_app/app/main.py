@@ -31,7 +31,7 @@ def main():
     except Exception as e:
         logging.critical(f"FATAL: Couldn't connect to database on startup: {e}")
         sys.exit(1)
-    
+
     # Kafka Setup
     producer_config = {
         "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
@@ -76,6 +76,7 @@ def main():
 
             except (json.JSONDecodeError, ValidationError) as e:
                 logging.error(f"Failed to process message: {e}")
+                # Produce the original message to the DLQ
                 try:
                     dlq_event = DlqStorageEvent(
                         failed_at=datetime.now(timezone.utc),
@@ -83,11 +84,9 @@ def main():
                         error_type=type(e).__name__,
                         original_message=msg.value()
                     )
-
-                    # Produce the original message to the DLQ
                     producer.produce(
                         DLQ_STORAGE,
-                        value=msg.value()
+                        value=dlq_event.model_dump_json()
                     )
                 except Exception as dlq_e:
                     logging.critical(f"FATAL: Couldn't produce message to DLQ. Error: {dlq_e}")
@@ -123,7 +122,7 @@ def main():
                 except Exception as e:
                     logging.error("Database insert failed.")
                     all_commits_successful = False
-                
+
                 if not all_commits_successful:
                     last_flush_time = time.time()
 
