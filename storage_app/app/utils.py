@@ -1,6 +1,7 @@
-import psycopg2
+import psycopg2.extras
 import logging
 from typing import List
+from .config import settings
 
 def perform_bulk_insert(conn, table_name: str, columns: List[str], conflict_columns: List[str], events: List[dict]):
     """
@@ -40,12 +41,11 @@ def perform_bulk_insert(conn, table_name: str, columns: List[str], conflict_colu
             insert_query,
             data_tuples,
             template=None,
-            page_size=100
+            page_size=settings.MAX_BATCH_SIZE
         )
         conn.commit()
 
         inserted_count = cursor.rowcount
-        logging.info(f"--- Attempted insert of {inserted_count} rows into {table_name} ---")
         return inserted_count
     
     except Exception as e:

@@ -65,13 +65,13 @@ def main():
                 logging.info("--- DAILY cycle complete ---")
                 
                 next_run_timestamp += INGESTION_INTERVAL_SECONDS
-                logging.info(f"Next run scheduled for: {datetime.fromtimestamp(next_run_timestamp, tz=timezone.utc)}")
+                logging.info(f"Next run scheduled for {datetime.fromtimestamp(next_run_timestamp, tz=timezone.utc)}")
 
                 remaining_messages = producer.flush(timeout=10.0)
                 if remaining_messages > 0:
                     logging.warning(f"--- {remaining_messages} messages failed to deliver to Kafka. ---")
 
-            # Sleep until the next run, or 5 minutes, whichever is shorter
+            # Sleep until the next run or 5 minutes, whichever is shorter
             sleep_duration = max(0, min(next_run_timestamp - time.time(), 300))
             time.sleep(sleep_duration)
 

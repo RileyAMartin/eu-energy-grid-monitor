@@ -73,21 +73,25 @@ class DailyAdaptableQueryConfig(BaseQueryConfig):
 class YearlyBackfillQueryConfig(BaseQueryConfig):
     """Query config to backfill data from up to a year prior."""
     
+    def __init__(self, eic_code: str):
+        self._eic_code = eic_code
+
     def get_time_window(self) -> tuple[datetime, datetime]:
         """
         Returns the time window between the start of yesterday
         and exactly one year prior.
         """
-        start_of_today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0)
+        start_of_today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         start_of_yesterday = start_of_today - relativedelta(days=1)
         one_year_prior = start_of_yesterday - relativedelta(years=1)
 
         return (one_year_prior, start_of_yesterday)
     
     def report_failure(self, start_time: datetime, error: Exception):
-        """This only logs errors to keep track of the script as it's running."""
-        logging.error(f"Unable to handle date {start_time.isoformat()}: {error}")
-
+        """This query config doesn't require any error handling."""
+        logging.warning(f"[YearlyBackfill] Failed to fetch {self._eic_code} for window {start_time.isoformat()}: {error}")
+        return
+    
 class RollingBackfillQueryConfig(BaseQueryConfig):
     """
     Query config to fetch a rolling X-day window prior to today.
@@ -102,11 +106,11 @@ class RollingBackfillQueryConfig(BaseQueryConfig):
         """
         Returns the time window between midnight today and midnight X days ago.
         """
-        end_time = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0)
+        end_time = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         start_time = end_time - relativedelta(days=self._days_to_backfill)
 
         return (start_time, end_time)
     
     def report_failure(self, start_time: datetime, error: Exception):
         """This only logs errors."""
-        logging.warning(f"[BackfillJob] Failed to fetch {self._eic_code} for window {start_time.isoformat()}: {error}")
+        logging.warning(f"[Backfill] Failed to fetch {self._eic_code} for window {start_time.isoformat()}: {error}")

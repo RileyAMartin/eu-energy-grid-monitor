@@ -61,11 +61,22 @@ def main():
 
                 # Produce the enriched events
                 for event in enriched_events:
-                    producer.produce(
-                        processor_config["enriched_topic"],
-                        key=event.eic_code.encode("utf-8"),
-                        value=event.model_dump_json()
-                    )
+                    try:
+                        producer.produce(
+                            processor_config["enriched_topic"],
+                            key=event.eic_code.encode("utf-8"),
+                            value=event.model_dump_json()
+                        )
+                    except BufferError:
+                        logging.warning(f"Local producer queue is full. Flushing queue before continuing.")
+                        producer.flush()
+                        logging.warning("Local producer flushed. Retrying the message.")
+                        producer.produce(
+                            processor_config["enriched_topic"],
+                            key=event.eic_code.encode("utf-8"),
+                            value=event.model_dump_json()
+                        )
+                    producer.poll(0)
 
                 # Commit the offset
                 consumer.commit(message=msg, asynchronous=False)
@@ -80,10 +91,19 @@ def main():
                         error_type=type(e).__name__,
                         original_message=msg.value()
                     )
-                    producer.produce(
-                        topic=DLQ_PROCESSING,
-                        value=dlq_event.model_dump_json()
-                    )
+                    try:
+                        producer.produce(
+                            topic=DLQ_PROCESSING,
+                            value=dlq_event.model_dump_json()
+                        )
+                    except BufferError:
+                        logging.warning(f"Local producer queue is full. Flushing before continuing.")
+                        producer.flush()
+                        logging.warning("Local producer flushed. Retrying the message.")
+                        producer.produce(
+                            topic=DLQ_PROCESSING,
+                            value=dlq_event.model_dump_json()
+                        )
                 except Exception as dlq_e:
                     logging.error(f"Couldn't produce message to DLQ. Error: {dlq_e}", exc_info=True)
                     continue

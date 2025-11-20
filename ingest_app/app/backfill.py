@@ -33,20 +33,23 @@ def backfill():
         )
         tasks.append(ingestor)
 
-    # Ingestion loop
     try:
-        while True:
-            logging.info("--- Starting new daily ingestion cycle ---")
+        for i, task in enumerate(tasks):
+            logging.info(f"--- Starting cycle for {task._eic_code} ({i+1}/{len(tasks)}) ---")
+            task.run_ingestion_cycle()
 
-            for task in tasks:
-                task.run_ingestion_cycle()
-                time.sleep(3)
-            
             remaining_messages = producer.flush()
             if remaining_messages > 0:
                 logging.warning(f"--- {remaining_messages} messages failed to deliver to Kafka. ---")
             else:
-                logging.info("--- All messages delivered successfully to Kafka. ---")
+                logging.info(f"--- All messages for {task._eic_code} delivered successfully to Kafka. ---")
+            time.sleep(30)
+
+        remaining_messages = producer.flush()
+        if remaining_messages > 0:
+            logging.warning(f"--- {remaining_messages} messages failed to deliver to Kafka. ---")
+        else:
+            logging.info("--- All messages for delivered successfully to Kafka. ---")
 
     except KeyboardInterrupt as e:
         logging.info("--- Shutting down ingestion ---")

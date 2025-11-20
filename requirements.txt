@@ -6,7 +6,7 @@ python-dotenv
 requests
 pydantic
 pydantic_settings
-psycopg2
+psycopg2-binary
 pytest
 pytest-mock
 freezegun
