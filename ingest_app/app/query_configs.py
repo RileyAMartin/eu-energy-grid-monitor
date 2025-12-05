@@ -35,8 +35,7 @@ class DailyQueryConfig(BaseQueryConfig):
         return (midnight_today, midnight_tomorrow)
 
 class DailyAdaptableQueryConfig(BaseQueryConfig):
-    def __init__(self, eic_code: str):
-        self._eic_code = eic_code
+    def __init__(self):
         self._retry_queue: list[datetime] = []
         self._last_new_day_attempted: datetime.date | None = None
 
@@ -72,9 +71,6 @@ class DailyAdaptableQueryConfig(BaseQueryConfig):
 
 class YearlyBackfillQueryConfig(BaseQueryConfig):
     """Query config to backfill data from up to a year prior."""
-    
-    def __init__(self, eic_code: str):
-        self._eic_code = eic_code
 
     def get_time_window(self) -> tuple[datetime, datetime]:
         """
@@ -86,11 +82,7 @@ class YearlyBackfillQueryConfig(BaseQueryConfig):
         one_year_prior = start_of_yesterday - relativedelta(years=1)
 
         return (one_year_prior, start_of_yesterday)
-    
-    def report_failure(self, start_time: datetime, error: Exception):
-        """This query config doesn't require any error handling."""
-        logging.warning(f"[YearlyBackfill] Failed to fetch {self._eic_code} for window {start_time.isoformat()}: {error}")
-        return
+
     
 class RollingBackfillQueryConfig(BaseQueryConfig):
     """
@@ -98,8 +90,7 @@ class RollingBackfillQueryConfig(BaseQueryConfig):
     Backfilling by X days means we avoid issues caused by downtime and issues
     with delays in data being uploaded to the API.
     """
-    def __init__(self, eic_code: str, days_to_backfill: int = 3):
-        self._eic_code = eic_code
+    def __init__(self, days_to_backfill: int = 3):
         self._days_to_backfill = days_to_backfill
 
     def get_time_window(self) -> tuple[datetime, datetime]:
@@ -110,7 +101,16 @@ class RollingBackfillQueryConfig(BaseQueryConfig):
         start_time = end_time - relativedelta(days=self._days_to_backfill)
 
         return (start_time, end_time)
+
+class RecentWindowQueryConfig(BaseQueryConfig):
+    def __init__(self, hours_to_fetch: int = 3):
+        self._hours_to_fetch = hours_to_fetch
     
-    def report_failure(self, start_time: datetime, error: Exception):
-        """This only logs errors."""
-        logging.warning(f"[Backfill] Failed to fetch {self._eic_code} for window {start_time.isoformat()}: {error}")
+    def get_time_window(self) -> tuple[datetime, datetime]:
+        """
+        Returns the time window between the current hour and (current hour - hours to fetch).
+        """
+        end_time = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+        start_time = end_time - relativedelta(hours=self._hours_to_fetch)
+        
+        return (start_time, end_time)

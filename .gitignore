@@ -1,10 +1,14 @@
-.env
+# Python
 venv
 .venv
-docs
-photos
 __pycache__
 .pytest_cache
+*.egg-info
+
+# Project files
+.env
+docs
+photos
 scripts
 TODO.txt
-*.egg-info
+local_backfill.py

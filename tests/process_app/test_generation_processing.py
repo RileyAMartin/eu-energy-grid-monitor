@@ -15,7 +15,6 @@ def test_process_generation_event_happy():
     eic_display_name = "GB-NI"
     eic_long_name = "Northern Ireland"
     countries = ["gb-nie"]
-    bidding_zone = "NIE"
 
     # PSR Details (B14 - Nuclear)
     psr_type_code = "B14"
@@ -26,7 +25,6 @@ def test_process_generation_event_happy():
     start_time = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)  # 01/01/2025 00:00
     end_time = datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc)  # 01/01/2025 01:00
     measurement_unit = "MAW"
-    source_document_mrid = "MRID-TEST"
     quantity_mw = 160
 
     raw_test_event = RawGenerationEvent(
@@ -35,8 +33,7 @@ def test_process_generation_event_happy():
         end_time=end_time,
         quantity_mw=quantity_mw,
         measurement_unit=measurement_unit,
-        psr_type_code=psr_type_code,
-        source_document_mrid=source_document_mrid        
+        psr_type_code=psr_type_code    
     )
 
     enriched_events = process_generation_event(raw_test_event, settings.PSR_TYPE_MAPPINGS, settings.EIC_MAPPINGS)
@@ -54,7 +51,6 @@ def test_process_generation_event_happy():
         assert event.eic_code == eic_code
         assert event.eic_display_name == eic_display_name
         assert event.eic_long_name ==  eic_long_name
-        assert event.bidding_zone == bidding_zone
         assert set(event.countries) == set(countries)
         
         # PSR Info
@@ -76,8 +72,7 @@ def test_process_generation_event_invalid_psr():
         end_time=datetime(2025, 1, 1, 1, 0, 0),
         psr_type_code="INVALID-PSR-TYPE",
         quantity_mw=100,
-        measurement_unit="MAW",
-        source_document_mrid="TEST-MRID"
+        measurement_unit="MAW"
     )
     with pytest.raises(InvalidPsrTypeCodeError):
         process_generation_event(invalid_event, settings.PSR_TYPE_MAPPINGS, settings.EIC_MAPPINGS)
@@ -90,8 +85,7 @@ def test_process_generation_event_invalid_eic():
         end_time=datetime(2025, 1, 1, 1, 0, 0),
         psr_type_code="B14",
         quantity_mw=100,
-        measurement_unit="MAW",
-        source_document_mrid="TEST-MRID"
+        measurement_unit="MAW"
     )
     with pytest.raises(InvalidEicCodeError):
         process_generation_event(invalid_event, settings.PSR_TYPE_MAPPINGS, settings.EIC_MAPPINGS)

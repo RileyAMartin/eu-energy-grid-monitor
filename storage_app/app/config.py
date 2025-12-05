@@ -18,7 +18,6 @@ DB_MAPPINGS = {
             "psr_type_code",
             "psr_type_name",
             "countries",
-            "bidding_zone",
             "start_time",
             "end_time"
         ],

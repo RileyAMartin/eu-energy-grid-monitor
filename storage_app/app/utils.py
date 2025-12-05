@@ -21,14 +21,16 @@ def perform_bulk_insert(conn, table_name: str, columns: List[str], conflict_colu
     if not conflict_columns:
         insert_query = f"""
             INSERT INTO {table_name} ({", ".join(f'"{c}"' for c in columns)})
-            VALUES %s;
+            VALUES %s
+            RETURNING 1;
         """
     else:
         insert_query = f"""
             INSERT INTO {table_name} ({", ".join(f'"{c}"' for c in columns)})
             VALUES %s
             ON CONFLICT ({", ".join(f'"{c}"' for c in conflict_columns)})
-            DO NOTHING;
+            DO NOTHING
+            RETURNING 1;
         """
 
     cursor = None
@@ -36,17 +38,17 @@ def perform_bulk_insert(conn, table_name: str, columns: List[str], conflict_colu
         cursor = conn.cursor()
 
         # Perform the bulk insert
-        psycopg2.extras.execute_values(
+        results = psycopg2.extras.execute_values(
             cursor,
             insert_query,
             data_tuples,
             template=None,
-            page_size=settings.MAX_BATCH_SIZE
+            page_size=settings.MAX_BATCH_SIZE,
+            fetch=True
         )
         conn.commit()
 
-        inserted_count = cursor.rowcount
-        return inserted_count
+        return len(results)
     
     except Exception as e:
         logging.error(f"Database bulk insert failed for {table_name}: {e}")

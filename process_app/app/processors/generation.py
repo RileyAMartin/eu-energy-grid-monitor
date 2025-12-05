@@ -26,7 +26,6 @@ def process_generation_event(raw_event: RawGenerationEvent, psr_type_mappings: d
         eic_display_name=eic_details["eic_display_name"],
         eic_long_name=eic_details["eic_long_name"],
         countries=eic_details["countries"],
-        bidding_zone=eic_details["bidding_zone"],
         carbon_output_kg_co2e=carbon_output_kg_co2e,
         psr_type_name=psr_details["name"],
         **raw_event.model_dump()
