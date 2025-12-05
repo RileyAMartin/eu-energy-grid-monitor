@@ -48,7 +48,6 @@ class DailyAdaptableQueryConfig(BaseQueryConfig):
         if self._retry_queue:
             start_date_to_retry = self._retry_queue.pop(0)
             end_date_to_retry = start_date_to_retry + relativedelta(days=1)
-            logging.info(f"Retrying missed day {start_date_to_retry.date()} for {self._eic_code}")
             return (start_date_to_retry, end_date_to_retry)
 
         # Otherwise, check if we've already tried midnight yesterday

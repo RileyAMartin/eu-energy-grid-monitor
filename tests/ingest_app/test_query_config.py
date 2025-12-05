@@ -6,7 +6,7 @@ from ingest_app.app.exceptions import NoDataFoundError
 
 @pytest.fixture
 def config():
-    return DailyAdaptableQueryConfig(eic_code="ABCTEST")
+    return DailyAdaptableQueryConfig()
 
 @freeze_time("2025-01-02 10:15:00")
 def test_get_time_window_good_path(config):
