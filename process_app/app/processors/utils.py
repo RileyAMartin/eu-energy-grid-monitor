@@ -1,9 +1,9 @@
 from dateutil.relativedelta import relativedelta
 from typing import List
-from eugrid_monitor_core.models import Event
-from exceptions import InvalidEventDurationError
+from eugrid_monitor_core.models import EntsoeEvent, EnrichedGenerationEvent
+from ..exceptions import InvalidEventDurationError
 
-def split_event(event: Event, new_duration_mins: int) -> List[Event]:
+def split_event(event: EntsoeEvent, new_duration_mins: int, fields_to_divide: List[str] = []) -> List[EntsoeEvent]:
     """
         Splits an event into intervals of the given duration, dividing the quantity as well.
         The duration of the new intervals must allow for the creation of equal-duration events.
@@ -21,7 +21,13 @@ def split_event(event: Event, new_duration_mins: int) -> List[Event]:
     increment = relativedelta(minutes=new_duration_mins)
     start_time = event.start_time
     end_time = start_time + increment
-    quantity_per_interval = event.quantity_mw / num_intervals
+
+    # Calculate the values for each field to split
+    updated_fields = {}
+    for field in fields_to_divide:
+        val = getattr(event, field, None)
+        if val is not None and isinstance(val, (int, float)):
+            updated_fields[field] = val / num_intervals
 
     # Split the events
     events = []
@@ -29,7 +35,7 @@ def split_event(event: Event, new_duration_mins: int) -> List[Event]:
         new_event = event.model_copy(update={
             "start_time": start_time,
             "end_time": end_time,
-            "quantity_mw": quantity_per_interval
+            **updated_fields
         })
         events.append(new_event)
         start_time = end_time

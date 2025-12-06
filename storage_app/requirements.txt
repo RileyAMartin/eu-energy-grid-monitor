@@ -1,6 +1,6 @@
--e ../eugrid_monitor_core
+-e ./eugrid_monitor_core
 confluent-kafka
 pydantic
 pydantic_settings
 python-dotenv
-psycopg2
+psycopg2-binary

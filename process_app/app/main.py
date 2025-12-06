@@ -1,10 +1,10 @@
-from confluent_kafka import Consumer, KafkaError, KafkaException, Producer
-from config import settings
-from eugrid_monitor_core.models import RawGenerationEvent, EventJSONDecoder
-from datetime import datetime
-from processors.generation import process_generation_event
 import logging
 import json
+from datetime import datetime, timezone
+from confluent_kafka import Consumer, KafkaError, Producer
+from eugrid_monitor_core.models import RawGenerationEvent, DlqProcessingEvent
+from eugrid_monitor_core.topics import DLQ_PROCESSING
+from .config import settings
 
 def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -27,16 +27,8 @@ def main():
     producer = Producer(producer_config)
     consumer = Consumer(consumer_config)
 
-    # Processing functions and output topics for each raw data topic in the queue
-    processing_dispatcher = {
-        settings.RAW_GENERATION_TOPIC: {
-            "enriched_topic": settings.ENRICHED_GENERATION_TOPIC,
-            "processing_function": process_generation_event
-        }
-    }
-
     # Enrich raw events
-    consumer.subscribe(list(processing_dispatcher.keys()))
+    consumer.subscribe(settings.RAW_TOPICS)
     try:
         while True:
             msg = consumer.poll(timeout=1.0)
@@ -47,33 +39,75 @@ def main():
                     logging.error(f"Kafka consumer error: {msg.error()}")
                 continue
 
-            try:
-                topic = msg.topic()
-                raw_message = json.loads(msg.value().decode("utf-8"))
+            # Start processing the message
+            topic = msg.topic()
+            processor_config = settings.PROCESSING_DISPATCHER.get(topic)
 
-                # Enrich the raw events according to their topic
-                processor_config = processing_dispatcher.get(topic)
-                if not processor_config:
-                    logging.warning(f"No processor configured for topic: {topic}")
-                    continue
-                raw_event = RawGenerationEvent.model_validate(raw_message)
-                enriched_events = processor_config["processing_function"](raw_event)
+            if not processor_config:
+                logging.warning(f"No processor configured for topic: {topic}")
+                consumer.commit(message=msg, asynchronous=False)
+                continue
+
+            try:
+                # Convert the raw event to a sequence of enriched events
+                model = processor_config["model"]
+                processing_function = processor_config["processing_function"]
+                raw_event = model.model_validate(json.loads(msg.value().decode("utf-8")))
+                enriched_events = processing_function(
+                    raw_event,
+                    settings.PSR_TYPE_MAPPINGS,
+                    settings.EIC_MAPPINGS
+                )
 
                 # Produce the enriched events
                 for event in enriched_events:
-                    event_dict = event.model_dump(mode="json")
-                    producer.produce(
-                        processor_config["enriched_topic"],
-                        key=event.eic_code.encode("utf-8"),
-                        value=json.dumps(event_dict, cls=EventJSONDecoder)
-                    )
+                    try:
+                        producer.produce(
+                            processor_config["enriched_topic"],
+                            key=event.eic_code.encode("utf-8"),
+                            value=event.model_dump_json()
+                        )
+                    except BufferError:
+                        logging.warning(f"Local producer queue is full. Flushing queue before continuing.")
+                        producer.flush()
+                        logging.warning("Local producer flushed. Retrying the message.")
+                        producer.produce(
+                            processor_config["enriched_topic"],
+                            key=event.eic_code.encode("utf-8"),
+                            value=event.model_dump_json()
+                        )
+                    producer.poll(0)
 
                 # Commit the offset
-                consumer.commit(asynchronous=False)
+                consumer.commit(message=msg, asynchronous=False)
 
-            except (json.JSONDecodeError, Exception) as e:
+            # On an exception, send the original message to the DLQ
+            except Exception as e:
                 logging.error(f"Failed to process message: {e}\nMessage Value: {msg.value()}")
-                consumer.commit(asynchronous=False)
+                try:
+                    dlq_event = DlqProcessingEvent(
+                        failed_at=datetime.now(timezone.utc),
+                        error_msg=str(e),
+                        error_type=type(e).__name__,
+                        original_message=msg.value()
+                    )
+                    try:
+                        producer.produce(
+                            topic=DLQ_PROCESSING,
+                            value=dlq_event.model_dump_json()
+                        )
+                    except BufferError:
+                        logging.warning(f"Local producer queue is full. Flushing before continuing.")
+                        producer.flush()
+                        logging.warning("Local producer flushed. Retrying the message.")
+                        producer.produce(
+                            topic=DLQ_PROCESSING,
+                            value=dlq_event.model_dump_json()
+                        )
+                except Exception as dlq_e:
+                    logging.error(f"Couldn't produce message to DLQ. Error: {dlq_e}", exc_info=True)
+                    continue
+                consumer.commit(message=msg, asynchronous=False)
     except KeyboardInterrupt:
         logging.info("Shutting down consumer...")
     finally:

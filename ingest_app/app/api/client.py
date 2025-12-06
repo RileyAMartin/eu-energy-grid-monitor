@@ -1,13 +1,14 @@
+import logging
 import requests
 from abc import ABC, abstractmethod
-from exceptions import InvalidIntervalError, NoDataFoundError
+from ..exceptions import InvalidIntervalError, NoDataFoundError
 
 class BaseFetcher(ABC):
     """An abstract base class for all API fetchers."""
 
     @abstractmethod
     def fetch(self, url_to_fetch: str) -> str:
-        """Fetches the content from the API and returns the response text."""
+        """Fetches the content from the URL and returns the response text."""
         pass
 
 class EntsoeApiFetcher(BaseFetcher):
@@ -21,7 +22,7 @@ class EntsoeApiFetcher(BaseFetcher):
         # Append the API key to the URL
         url_to_fetch = f"{url_to_fetch}&securityToken={self._api_key}"
         
-        response = requests.get(url_to_fetch, timeout=30)
+        response = requests.get(url_to_fetch, timeout=300)
 
         if "Delivered time interval is not valid" in response.text:
             raise InvalidIntervalError("The API rejected the time interval as too short.")

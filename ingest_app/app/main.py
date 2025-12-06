@@ -1,17 +1,14 @@
-from confluent_kafka import Producer
-from ingestors.generation import GenerationIngestor
-from ingestors.query_configs import DailyQueryConfig
-from api.client import EntsoeApiFetcher
-from config import settings
-import logging
 import time
+import logging
+from datetime import datetime, timezone
+from confluent_kafka import Producer
+from .ingestors.generation import GenerationIngestor
+from .query_configs import RecentWindowQueryConfig
+from .api.client import EntsoeApiFetcher
+from .config import settings
 
 
 def main():
-    """
-    Sets up the environment and runs the ingestion cycle for the ENTSOE-API.
-    For now only energy generation metrics are ingested, but more will be added.
-    """
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
     producer = Producer({
@@ -22,42 +19,52 @@ def main():
         'sasl.password': settings.KAFKA_SASL_PASSWORD,        
     })
     fetcher = EntsoeApiFetcher(settings.ENTSOE_API_KEY)
-    query_config = DailyQueryConfig()
-    
-    # Initialise the ingestion tasks
-    # For now, we only do ingestion for generation metrics, but will add more later
-    tasks = []
-    for eic_code in settings.EIC_CODES_GENERATION:
-        ingestor = GenerationIngestor(
-            producer,
-            eic_code,
-            fetcher,
-            query_config,
-            settings.ENTSOE_API_URL
-        )
-        tasks.append(ingestor)
 
-    # Ingestion loop
+    DEEP_BACKFILL_HOUR_UTC = 2  # The deep backfill begins at 02:00 UTC
+
+    logging.info(f"--- Starting daily ingestion service ---")
+    
     try:
         while True:
-            logging.info("--- Starting new daily ingestion cycle ---")
+            now = datetime.now(timezone.utc)
 
-            for task in tasks:
-                task.run_ingestion_cycle()
-                time.sleep(3)
+            if now.hour == DEEP_BACKFILL_HOUR_UTC:
+                logging.info("--- Beginning daily deep backfill (last 72 hours) ---")
+                query_config = RecentWindowQueryConfig(hours_to_fetch=72)
+            else:
+                logging.info("--- Beginning hourly backfill (last 3 hours) ---")
+                query_config = RecentWindowQueryConfig(hours_to_fetch=3)
             
-            remaining_messages = producer.flush()
+            for i, eic_code in enumerate(settings.EIC_CODES_GENERATION):
+                logging.info(f"Processing {eic_code} ({i+1}/{len(settings.EIC_CODES_GENERATION)})")
+
+                ingestor = GenerationIngestor(
+                    producer,
+                    eic_code,
+                    fetcher,
+                    query_config,
+                    settings.ENTSOE_API_URL
+                )
+                ingestor.run_ingestion_cycle()
+                
+                producer.poll(0)
+                time.sleep(1)
+
+            remaining_messages = producer.flush(timeout=10.0)
             if remaining_messages > 0:
                 logging.warning(f"--- {remaining_messages} messages failed to deliver to Kafka. ---")
-            else:
-                logging.info("--- All messages delivered successfully to Kafka. ---")
+            
+            # Sleep until the start of the next hour
+            current_timestamp = time.time()
+            seconds_until_next_hour = 3600 - (current_timestamp % 3600)
 
-            logging.info("--- Daily cycle complete. Sleeping for 24 hours ---")
-            time.sleep(86400) # 1 day - TODO: implement adaptive sleeping and then cron jobs
-    except KeyboardInterrupt as e:
+            logging.info(f"Sleeping for {seconds_until_next_hour} seconds.")
+            time.sleep(seconds_until_next_hour)
+
+
+    except KeyboardInterrupt:
         logging.info("--- Shutting down ingestion ---")
         producer.flush()
-
 
 if __name__ == "__main__":
     main()

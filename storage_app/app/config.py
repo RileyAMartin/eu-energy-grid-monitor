@@ -1,12 +1,13 @@
-from typing import List
 from dotenv import load_dotenv
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 from eugrid_monitor_core.models import EnrichedGenerationEvent
+from eugrid_monitor_core.topics import ENRICHED_GENERATION_EVENTS
 
 load_dotenv()
 
 DB_MAPPINGS = {
-    "enriched-generation-events": {
+    ENRICHED_GENERATION_EVENTS: {
         "table_name": "energy_generation_events",
         "columns": [
             "eic_code",
@@ -17,12 +18,12 @@ DB_MAPPINGS = {
             "psr_type_code",
             "psr_type_name",
             "countries",
-            "bidding_zone",
             "start_time",
             "end_time"
         ],
         "model": EnrichedGenerationEvent,
-        "conflict_columns": []
+        # The combo of these columns must be unique in the DB
+        "conflict_columns": ["eic_code", "start_time", "psr_type_code"]
     }
 }
 
@@ -48,8 +49,8 @@ class Settings(BaseSettings):
     MAX_BATCH_SIZE: int = 1000
     MAX_BATCH_INTERVAL_SECONDS: int = 10
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = ConfigDict(
+        extra="ignore"
+    )
 
 settings = Settings()

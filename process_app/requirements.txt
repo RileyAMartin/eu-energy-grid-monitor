@@ -1,7 +1,6 @@
--e ../eugrid_monitor_core
+-e ./eugrid_monitor_core
 confluent-kafka
 python-dateutil
 python-dotenv
-requests
 pydantic
 pydantic_settings

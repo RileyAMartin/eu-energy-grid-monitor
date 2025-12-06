@@ -1,0 +1,4 @@
+<GL_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0">
+<TestDescription>This test doesn't contain any timeseries. The parsing function should return an empty list.</TestDescription>
+<mRID>a823f80efb254f78afd9d247146f015b</mRID>
+</GL_MarketDocument>

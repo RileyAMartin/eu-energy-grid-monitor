@@ -2,64 +2,14 @@ import json
 import sys
 import time
 import psycopg2
-import psycopg2.extras
 import logging
-from confluent_kafka import Consumer, KafkaError
+from confluent_kafka import Consumer, KafkaError, Producer
 from pydantic import ValidationError
-from typing import List
-from config import settings
-from eugrid_monitor_core.models import EnrichedGenerationEvent
-
-def perform_bulk_insert(conn, table_name: str, columns: List[str], conflict_columns: List[str], events: List[dict]):
-
-    if not events:
-        return 0
-
-    data_tuples = [
-        tuple(event.get(col) for col in columns)
-        for event in events
-    ]
-
-    if not conflict_columns:
-        insert_query = f"""
-            INSERT INTO {table_name} ({", ".join(f'"{c}"' for c in columns)})
-            VALUES %s;
-        """
-
-    else:
-        insert_query = f"""
-            INSERT INTO {table_name} ({", ".join(f'"{c}"' for c in columns)})
-            VALUES %s
-            ON CONFLICT ({", ".join(f'"{c}"' for c in conflict_columns)})
-            DO NOTHING;
-        """
-
-    cursor = None
-    try:
-        cursor = conn.cursor()
-
-        # Perform the bulk insert
-        psycopg2.extras.execute_values(
-            cursor,
-            insert_query,
-            data_tuples,
-            template=None,
-            page_size=100
-        )
-        conn.commit()
-
-        inserted_count = cursor.rowcount
-        logging.info(f"--- Attempted insert of {inserted_count} rows into {table_name} ---")
-        return inserted_count
-    
-    except Exception as e:
-        logging.error(f"Database bulk insert failed for {table_name}: {e}")
-        if conn:
-            conn.rollback()
-        raise
-    finally:
-        if cursor:
-            cursor.close()
+from datetime import datetime, timezone
+from .config import settings
+from .utils import perform_bulk_insert
+from eugrid_monitor_core.topics import DLQ_STORAGE
+from eugrid_monitor_core.models import DlqStorageEvent
 
 def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -81,23 +31,27 @@ def main():
     except Exception as e:
         logging.critical(f"FATAL: Couldn't connect to database on startup: {e}")
         sys.exit(1)
-    
+
     # Kafka Setup
-    consumer_config = {
+    producer_config = {
         "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
         "security.protocol": "SASL_SSL",
         "sasl.mechanism": "PLAIN",
         "sasl.username": settings.KAFKA_SASL_USERNAME,
         "sasl.password": settings.KAFKA_SASL_PASSWORD,
+    }
+    consumer_config = {
+        **producer_config,
         "group.id": settings.KAFKA_GROUP_ID,
         "enable.auto.commit": "false",
         "auto.offset.reset": "earliest"
     }
     consumer = Consumer(consumer_config)
+    producer = Producer(producer_config)
     topics = list(settings.DB_MAPPINGS.keys())
 
     # Main loop
-    event_buffers = {topic: [] for topic in topics}  # Each topic will be uploaded to the db individually
+    event_buffers = {topic: [] for topic in topics}  # Each topic is uploaded to the db individually
     last_flush_time = time.time()
     consumer.subscribe(topics)
     try:
@@ -115,12 +69,28 @@ def main():
                 topic = msg.topic()
                 raw_message  = json.loads(msg.value().decode("utf-8"))
 
+                # Verify the schema of the event before converting it to a dict for easy upload to the DB
                 model = settings.DB_MAPPINGS[topic]["model"]  # Pydantic model for this event type
                 event = model.model_validate(raw_message)
                 event_buffers[topic].append(event.model_dump(mode="json"))
 
             except (json.JSONDecodeError, ValidationError) as e:
                 logging.error(f"Failed to process message: {e}")
+                # Produce the original message to the DLQ
+                try:
+                    dlq_event = DlqStorageEvent(
+                        failed_at=datetime.now(timezone.utc),
+                        error_msg=str(e),
+                        error_type=type(e).__name__,
+                        original_message=msg.value()
+                    )
+                    producer.produce(
+                        DLQ_STORAGE,
+                        value=dlq_event.model_dump_json()
+                    )
+                except Exception as dlq_e:
+                    logging.critical(f"FATAL: Couldn't produce message to DLQ. Error: {dlq_e}")
+                    continue
                 consumer.commit(asynchronous=False)
                 continue
 
@@ -152,7 +122,7 @@ def main():
                 except Exception as e:
                     logging.error("Database insert failed.")
                     all_commits_successful = False
-                
+
                 if not all_commits_successful:
                     last_flush_time = time.time()
 

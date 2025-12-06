@@ -1,8 +1,8 @@
 from datetime import datetime
 from .base import BaseIngestor
-from parsers.generation import parse_generation_document
+from ..parsers.generation import parse_generation_document
 from eugrid_monitor_core.models import RawGenerationEvent
-from config import settings
+from eugrid_monitor_core.topics import RAW_GENERATION_EVENTS
 
 class GenerationIngestor(BaseIngestor):
     """A class to handle ingestion from the Energy Generation By Type endpoint."""
@@ -13,15 +13,14 @@ class GenerationIngestor(BaseIngestor):
 
     @property
     def topic_name(self) -> str:
-        """The Kafka topic to publish events to."""
-        return settings.RAW_GENERATION_TOPIC
+        return RAW_GENERATION_EVENTS
 
     def _parse_response(self, response_content: str) -> list[RawGenerationEvent]:
         """Parses the XML response into a list of standardised records."""
         return parse_generation_document(response_content)
 
     def _build_url(self, start_time: datetime, end_time: datetime) -> str:
-        """Returns a URL for the ENTSO-E API (sans the API key which must be added in an ApiFetcher.)"""
+        """Returns a URL for the ENTSO-E API (w/o the API key, which is added by the Fetcher)"""
         start_time_str = start_time.strftime("%Y%m%d%H%M")
         end_time_str = end_time.strftime("%Y%m%d%H%M")
         return (
