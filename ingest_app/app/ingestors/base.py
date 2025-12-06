@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from confluent_kafka import Producer
-from ..api.client import BaseFetcher
+from ..api.client import EntsoeClient
 from ..exceptions import InvalidIntervalError, NoDataFoundError
 from ..query_configs import BaseQueryConfig
 from eugrid_monitor_core.models import EntsoeEvent, DlqIngestionEvent
@@ -11,12 +11,11 @@ import logging
 class BaseIngestor(ABC):
     """An abstract base class for all ENTSO-E ingestion services."""
 
-    def __init__(self, producer: Producer, eic_code: str, fetcher: BaseFetcher, query_config: BaseQueryConfig, api_url: str):
+    def __init__(self, producer: Producer, eic_code: str, client: EntsoeClient, query_config: BaseQueryConfig):
         self._producer = producer
         self._eic_code = eic_code
-        self._fetcher = fetcher
+        self._client = client
         self._query_config = query_config
-        self._api_url = api_url
 
     @abstractmethod
     def _parse_response(self, response_content: str) -> list[EntsoeEvent]:
@@ -24,8 +23,8 @@ class BaseIngestor(ABC):
         pass
 
     @abstractmethod
-    def _build_url(self, start_time: datetime, end_time: datetime) -> str:
-        """Constructs the URL to use for the ENTSO-E API."""        
+    def _get_query_params(self, start_time: datetime, end_time: datetime) -> str:
+        """Constructs the query parameters for this metric."""        
         pass
 
     @property 
@@ -38,19 +37,16 @@ class BaseIngestor(ABC):
         """A single run of the ingestion logic for this EIC code."""
         try:
             # Get the XML data from the ENTSO-E API
-            start_time, end_time = None, None
             start_time, end_time = self._query_config.get_time_window()
-
-            # This interval has already been fetched
             if start_time is None:
                 logging.debug(f"No new work for {self._eic_code} - skipping cycle.")
                 return
 
-            url_to_fetch = self._build_url(start_time, end_time)
-            response = self._fetcher.fetch(url_to_fetch)
+            params = self._get_query_params(start_time, end_time)
+            response_text = self._client.get_data(params)
 
             # Parse the data to get a list of events
-            events = self._parse_response(response)
+            events = self._parse_response(response_text)
             if not events:
                 logging.warning(f"No valid data found for EIC {self._eic_code}")
                 return

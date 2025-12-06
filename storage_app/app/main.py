@@ -57,7 +57,7 @@ def main():
     try:
         logging.info("--- Beginning main loop ---")
         while True:
-            msg = consumer.poll(timeout=1.0)
+            msg = consumer.poll(1)
             if msg is None: continue            
             if msg.error():
                 if msg.error().code() != KafkaError._PARTITION_EOF:

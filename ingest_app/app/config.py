@@ -40,6 +40,7 @@ class Settings(BaseSettings):
     ENTSOE_API_URL: str = "https://web-api.tp.entsoe.eu/api"
     EIC_CODES: List[str] = _load_eic_codes_from_file(_EIC_CODES_FILE_PATH)
     EIC_CODES_GENERATION: List[str] = _load_eic_codes_from_file(_GENERATION_EIC_CODES_FILE_PATH)
+    DEEP_BACKFILL_HOUR_UTC: int = 2
 
     model_config = ConfigDict(
         extra="ignore"

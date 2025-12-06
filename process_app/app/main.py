@@ -31,7 +31,7 @@ def main():
     consumer.subscribe(settings.RAW_TOPICS)
     try:
         while True:
-            msg = consumer.poll(timeout=1.0)
+            msg = consumer.poll(1)
             if msg is None: continue
 
             if msg.error():

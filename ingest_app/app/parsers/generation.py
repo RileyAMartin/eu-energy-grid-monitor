@@ -142,7 +142,7 @@ def parse_generation_document(xml_str: str) -> list[dict]:
     """
     if not xml_str:
         return []
-        
+
     try:
         doc_xml = etree.fromstring(xml_str)
     except etree.XMLSyntaxError as e:
