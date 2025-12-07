@@ -9,18 +9,32 @@ from eugrid_monitor_core.service import ServiceWorker
 from eugrid_monitor_core.topics import DLQ_STORAGE
 from eugrid_monitor_core.models import DlqStorageEvent
 from .config import settings
-from .utils import perform_bulk_insert
+from .repo import PostgresRepo
 
 class StorageWorker(ServiceWorker):
     def __init__(self):
         self._consumer = None
         self._producer = None
         self._db_connection = None
+        self._repo = None
 
         self._event_buffers = {topic: [] for topic in settings.DB_MAPPINGS.keys()}
         self._last_flush_time = time.time()
     
     def startup(self) -> None:
+        
+        logging.info("Connecting to db...")
+        self._db_connection = psycopg2.connect(
+            user=settings.DB_USER,
+            password=settings.DB_PASSWORD,
+            host=settings.DB_HOST,
+            port=settings.DB_PORT,
+            dbname=settings.DB_NAME,
+        )
+        logging.info("Connected to db.")
+
+        self._repo = PostgresRepo(self._db_connection)
+        
         logging.info("Connecting to Kafka...")
         producer_config = {
             "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
@@ -38,7 +52,7 @@ class StorageWorker(ServiceWorker):
             "auto.offset.reset": "earliest"
         })
         self._consumer.subscribe(list(settings.DB_MAPPINGS.keys()))
-        logging.info("Kafka connected.")
+        logging.info("Kafka connected.")        
 
     def run_cycle(self) -> None:
         """Consumes enriched events from Kafka and uploads them to the db."""
@@ -80,7 +94,7 @@ class StorageWorker(ServiceWorker):
 
             config = settings.DB_MAPPINGS[topic]
             try:
-                perform_bulk_insert(
+                self._repo.bulk_insert(
                     self._db_connection, 
                     config.table_name, 
                     config.columns, 
