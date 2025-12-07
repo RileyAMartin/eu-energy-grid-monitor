@@ -34,7 +34,7 @@ DB_MAPPINGS = {
         model=EnrichedGenerationEvent,
         conflict_columns=[
             "eic_code",
-            "psr_type",
+            "psr_type_code",
             "start_time"
         ],
         override_columns=[

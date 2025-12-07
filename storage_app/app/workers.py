@@ -70,7 +70,7 @@ class StorageWorker(ServiceWorker):
                         model = settings.DB_MAPPINGS[topic].model
                         event = model.model_validate(raw_message)
                         self._event_buffers[topic].append(event.model_dump(mode="json"))
-                    except (json.JSONDecodeError, ValidationError) as e:
+                    except (json.JSONDecodeError, ValidationError) as e: 
                         self._handle_dlq(msg, e)
                         self._consumer.commit(message=msg, asynchronous=False)
 
