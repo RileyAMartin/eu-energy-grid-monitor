@@ -63,7 +63,9 @@ class ServiceRunner():
                     time_to_sleep = max(0, self._sleep_interval - elapsed_time)
 
                     logging.info(f"Sleeping for {time_to_sleep} seconds.")
-                    self._stop_event.wait(time_to_sleep)
+                    while time_to_sleep > 0 and not self._stop_event.is_set():
+                        self._stop_event.wait(min(time_to_sleep, 0.5))
+                        time_to_sleep -= 0.5
 
         finally:
             logging.info("--- Service stopping ---")
