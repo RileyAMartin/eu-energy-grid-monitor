@@ -1,4 +1,3 @@
-from typing import List, Dict
 from .base import BaseEntsoeParser
 from eugrid_monitor_core.models import RawGenerationEvent
 
@@ -7,7 +6,7 @@ class GenerationParser(BaseEntsoeParser):
     Parser for Generation Load Documents (GL_MarketDocument).
     """
 
-    def _extract_timeseries_context(self, ts_node, nsmap) -> Dict:
+    def _extract_timeseries_context(self, ts_node, nsmap) -> dict:
         """
         Extracts metadata shared by all points in this TimeSeries.
         Returns None if the TimeSeries belongs to an 'outBiddingZone' (i.e. export)
@@ -22,10 +21,10 @@ class GenerationParser(BaseEntsoeParser):
             "measurement_unit": ts_node.xpath(".//doc:quantity_Measure_Unit.name", namespaces=nsmap)[0].text.strip(),
         }
 
-    def _extract_point_data(self, point_node, nsmap) -> Dict:
+    def _extract_point_data(self, point_node, nsmap) -> dict:
         """
         Extracts the value for a specific Point.
-        Returns a Dict containing the Quantity value.
+        Returns a dict containing the Quantity value.
         """
         qty_node = point_node.xpath(".//doc:quantity", namespaces=nsmap)
         return {

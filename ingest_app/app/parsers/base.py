@@ -2,7 +2,6 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from typing import List, Dict
 from lxml import etree
 from eugrid_monitor_core.models import EntsoeEvent
 
@@ -11,7 +10,7 @@ class BaseEntsoeParser(ABC):
     Base strategy for parsing XML documents from the ENTSO-E API.
     """
 
-    def parse(self, xml_content: bytes) -> List[EntsoeEvent]:
+    def parse(self, xml_content: bytes) -> list[EntsoeEvent]:
         """
         Parses the XML content from an ENTSO-E API response.
         Returns a list of EntsoeEvent models.
@@ -144,21 +143,21 @@ class BaseEntsoeParser(ABC):
         return events
 
     @abstractmethod
-    def _extract_timeseries_context(self, ts_node, nsmap) -> Dict:
+    def _extract_timeseries_context(self, ts_node, nsmap) -> dict:
         """Extract metadata common to the whole TimeSeries (e.g. EIC Code)."""
         pass
 
     @abstractmethod
-    def _extract_point_data(self, point_node, nsmap: Dict) -> Dict:
+    def _extract_point_data(self, point_node, nsmap: dict) -> dict:
         """Extract the specific value from a point (e.g. quantity)."""
         pass
 
     @abstractmethod
-    def _create_event(self, data: Dict) -> EntsoeEvent:
+    def _create_event(self, data: dict) -> EntsoeEvent:
         """Returns a validated EntsoeEvent model."""
         pass
 
-    def _get_namespaces(self, doc) -> Dict:
+    def _get_namespaces(self, doc) -> dict:
         try:
             ns = etree.QName(doc).namespace
             # If no namespace is found, then use the most common namespace

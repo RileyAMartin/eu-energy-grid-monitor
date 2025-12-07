@@ -1,9 +1,8 @@
 from dateutil.relativedelta import relativedelta
-from typing import List
-from eugrid_monitor_core.models import EntsoeEvent, EnrichedGenerationEvent
+from eugrid_monitor_core.models import EntsoeEvent
 from ..exceptions import InvalidEventDurationError
 
-def split_event(event: EntsoeEvent, new_duration_mins: int, fields_to_divide: List[str] = []) -> List[EntsoeEvent]:
+def split_event(event: EntsoeEvent, new_duration_mins: int, fields_to_divide: list[str] = []) -> list[EntsoeEvent]:
     """
         Splits an event into intervals of the given duration, dividing the quantity as well.
         The duration of the new intervals must allow for the creation of equal-duration events.

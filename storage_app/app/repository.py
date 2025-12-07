@@ -1,7 +1,5 @@
 import logging
 import psycopg2
-from typing import List
-from .config import settings
 
 class PostgresRepo():
     """
@@ -12,7 +10,7 @@ class PostgresRepo():
     def __init__(self, connection):
         self._conn = connection
     
-    def bulk_insert(self, table_name: str, columns: List[str], conflict_columns: List[str], events: List[dict]) -> int:
+    def bulk_insert(self, table_name: str, columns: list[str], conflict_columns: list[str], events: list[dict]) -> int:
         """
         Inserts events into the db.
         Returns the number of rows inserted.

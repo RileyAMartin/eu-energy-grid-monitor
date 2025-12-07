@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Type, Optional
+from typing import Type, Optional
 from dotenv import load_dotenv
 from pydantic import ConfigDict, BaseModel
 from pydantic_settings import BaseSettings
@@ -15,11 +15,11 @@ class TableMapping():
     """
     table_name: str
     model: Type[BaseModel]
-    conflict_columns: List[str]
-    override_columns: Optional[List[str]] = None  # Specific columns to write to the db
+    conflict_columns: list[str]
+    override_columns: Optional[list[str]] = None  # Specific columns to write to the db
 
     @property
-    def columns(self) -> List[str]:
+    def columns(self) -> list[str]:
         """
         Returns the list of columns to insert to the db.
         If no override columns are provided, returns all fields from the data model.

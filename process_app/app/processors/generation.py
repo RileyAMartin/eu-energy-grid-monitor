@@ -1,9 +1,8 @@
-from typing import List
 from .utils import split_event
 from eugrid_monitor_core.models import RawGenerationEvent, EnrichedGenerationEvent
 from ..exceptions import InvalidEicCodeError, InvalidPsrTypeCodeError
 
-def process_generation_event(raw_event: RawGenerationEvent, psr_type_mappings: dict, eic_mappings: dict) -> List[EnrichedGenerationEvent]:
+def process_generation_event(raw_event: RawGenerationEvent, psr_type_mappings: dict, eic_mappings: dict) -> list[EnrichedGenerationEvent]:
     """
         Processes and enriches a RawGenerationEvent:
         - Splits the event up into 15-minute intervals.

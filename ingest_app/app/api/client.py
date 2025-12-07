@@ -2,7 +2,7 @@ import logging
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from typing import Dict, Any
+from typing import Any
 from ..exceptions import InvalidIntervalError, NoDataFoundError
 
 class EntsoeClient():
@@ -33,7 +33,7 @@ class EntsoeClient():
 
         return session
 
-    def get_data(self, params: Dict[str, Any]) -> bytes:
+    def get_data(self, params: dict[str, Any]) -> bytes:
         """
         Fetches data from the API based on the provided parameters.
         Returns the response content in byte format.
