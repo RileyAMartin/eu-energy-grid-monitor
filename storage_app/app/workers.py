@@ -9,7 +9,7 @@ from eugrid_monitor_core.service import ServiceWorker
 from eugrid_monitor_core.topics import DLQ_STORAGE
 from eugrid_monitor_core.models import DlqStorageEvent
 from .config import settings
-from .repo import PostgresRepo
+from .repository import PostgresRepo
 
 class StorageWorker(ServiceWorker):
     def __init__(self):
