@@ -53,7 +53,7 @@ class StorageWorker(ServiceWorker):
                     try:
                         # Load the raw event and add it to the buffers
                         raw_message = json.loads(msg.value().decode("utf-8"))
-                        model = settings.DB_MAPPINGS[topic]["model"]
+                        model = settings.DB_MAPPINGS[topic].model
                         event = model.model_validate(raw_message)
                         self._event_buffers[topic].append(event.model_dump(mode="json"))
                     except (json.JSONDecodeError, ValidationError) as e:
@@ -82,9 +82,9 @@ class StorageWorker(ServiceWorker):
             try:
                 perform_bulk_insert(
                     self._db_connection, 
-                    config["table_name"], 
-                    config["columns"], 
-                    config["conflict_columns"], 
+                    config.table_name, 
+                    config.columns, 
+                    config.conflict_columns, 
                     events
                 )
                 self._event_buffers[topic] = []

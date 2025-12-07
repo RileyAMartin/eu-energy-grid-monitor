@@ -1,15 +1,43 @@
+from dataclasses import dataclass
+from typing import List, Type, Optional
 from dotenv import load_dotenv
-from pydantic import ConfigDict
+from pydantic import ConfigDict, BaseModel
 from pydantic_settings import BaseSettings
 from eugrid_monitor_core.models import EnrichedGenerationEvent
 from eugrid_monitor_core.topics import ENRICHED_GENERATION_EVENTS
 
 load_dotenv()
 
+@dataclass
+class TableMapping():
+    """
+    Config object that maps a Kafak topic to a db table.
+    """
+    table_name: str
+    model: Type[BaseModel]
+    conflict_columns: List[str]
+    override_columns: Optional[List[str]] = None  # Specific columns to write to the db
+
+    @property
+    def columns(self) -> List[str]:
+        """
+        Returns the list of columns to insert to the db.
+        If no override columns are provided, returns all fields from the data model.
+        """
+        if self.override_columns:
+            return self.override_columns
+        return self.model.model_fields.keys()
+
 DB_MAPPINGS = {
-    ENRICHED_GENERATION_EVENTS: {
-        "table_name": "energy_generation_events",
-        "columns": [
+    ENRICHED_GENERATION_EVENTS: TableMapping(
+        table_name="energy_generation_events",
+        model=EnrichedGenerationEvent,
+        conflict_columns=[
+            "eic_code",
+            "psr_type",
+            "start_time"
+        ],
+        override_columns=[
             "eic_code",
             "eic_display_name",
             "eic_long_name",
@@ -20,11 +48,8 @@ DB_MAPPINGS = {
             "countries",
             "start_time",
             "end_time"
-        ],
-        "model": EnrichedGenerationEvent,
-        # The combo of these columns must be unique in the DB
-        "conflict_columns": ["eic_code", "start_time", "psr_type_code"]
-    }
+        ]
+    )
 }
 
 class Settings(BaseSettings):
