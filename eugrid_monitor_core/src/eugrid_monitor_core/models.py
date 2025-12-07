@@ -21,6 +21,7 @@ class EnrichedGenerationEvent(RawGenerationEvent):
     eic_long_name: str
     countries: list[str]
     carbon_output_kg_co2e: float
+    quantity_mwh: float
     psr_type_name: str
 
 class EventJSONDecoder(json.JSONEncoder):

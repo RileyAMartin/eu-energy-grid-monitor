@@ -14,7 +14,11 @@ def process_generation_event(raw_event: RawGenerationEvent, psr_type_mappings: d
     psr_details = psr_type_mappings.get(raw_event.psr_type_code)
     if psr_details is None:
         raise InvalidPsrTypeCodeError(f"PSR type code not found in mapping: {raw_event.psr_type_code}")
-    carbon_output_kg_co2e = raw_event.quantity_mw * psr_details["kg_co2e_mwh"]
+
+    # Calculate total MWh and carbon output
+    duration_hours = (raw_event.end_time - raw_event.start_time).total_seconds() / 3600
+    total_mwh = raw_event.quantity_mw * duration_hours
+    total_co2 = total_mwh * psr_details["kg_co2e_mwh"]
 
     eic_details = eic_mappings.get(raw_event.eic_code)
     if eic_details is None:
@@ -25,7 +29,8 @@ def process_generation_event(raw_event: RawGenerationEvent, psr_type_mappings: d
         eic_display_name=eic_details["eic_display_name"],
         eic_long_name=eic_details["eic_long_name"],
         countries=eic_details["countries"],
-        carbon_output_kg_co2e=carbon_output_kg_co2e,
+        carbon_output_kg_co2e=total_co2,
+        quantity_mwh=total_mwh,
         psr_type_name=psr_details["name"],
         **raw_event.model_dump()
     )
@@ -34,7 +39,7 @@ def process_generation_event(raw_event: RawGenerationEvent, psr_type_mappings: d
     events = split_event(
         enriched_event,
         new_duration_mins=15,
-        fields_to_divide=["quantity_mw", "carbon_output_kg_co2e"]
+        fields_to_divide=["quantity_mwh", "carbon_output_kg_co2e"]
     )
 
     return events

@@ -42,6 +42,7 @@ DB_MAPPINGS = {
             "eic_display_name",
             "eic_long_name",
             "quantity_mw",
+            "quantity_mwh",
             "carbon_output_kg_co2e",
             "psr_type_code",
             "psr_type_name",
