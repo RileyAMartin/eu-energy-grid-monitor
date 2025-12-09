@@ -4,7 +4,7 @@ import psycopg2.extras
 class PostgresRepo():
     """
     Handles Postgres operations.
-    This only exists for dependency injection purposes.
+    This only exists for dependency injection purposes in testing.
     """
 
     def __init__(self, connection):

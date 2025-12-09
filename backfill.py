@@ -45,7 +45,7 @@ def run_local_backfill(days: int):
     db_config = storage_settings.DB_MAPPINGS[ENRICHED_GENERATION_EVENTS]
     
     total_codes = len(eic_codes)    
-    for i, eic_code in enumerate(eic_codes):
+    for i, eic_code in enumerate(eic_codes[8:]):
         logging.info(f"Processing {eic_code} ({i+1}/{total_codes})")
         
         ingestor = GenerationIngestor(
@@ -57,7 +57,7 @@ def run_local_backfill(days: int):
 
         chunk_start = start_time
         while chunk_start < end_time:
-            chunk_end = min(chunk_start + timedelta(days=7), end_time)
+            chunk_end = min(chunk_start + timedelta(days=20), end_time)
             
             try:
                 # Fetch the XML from the API

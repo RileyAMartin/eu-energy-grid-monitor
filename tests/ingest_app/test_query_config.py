@@ -1,68 +1,39 @@
 import pytest
 from datetime import datetime, timezone, timedelta
 from freezegun import freeze_time
-from ingest_app.app.query_configs import DailyAdaptableQueryConfig
+from ingest_app.app.query_configs import RecentWindowQueryConfig
 from ingest_app.app.exceptions import NoDataFoundError
 
 @pytest.fixture
-def config():
-    return DailyAdaptableQueryConfig()
+def config_default():
+    return RecentWindowQueryConfig()
 
-@freeze_time("2025-01-02 10:15:00")
-def test_get_time_window_good_path(config):
+@pytest.fixture
+def config_custom():
+    return RecentWindowQueryConfig(hours_to_fetch=24)
+
+@freeze_time("2025-01-01 10:15:00")
+def test_get_time_window_default(config_default):
     """
-    On a new day, the query config should return yesterday's window
-    and update its internal state.
+    The default config should return a window ending at the start of the current hour (10:00)
+    and starting 3 hours prior (07:00).
     """
-    expected_start = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
-    expected_end = datetime(2025, 1, 2, 0, 0, 0, tzinfo=timezone.utc)
-    
-    start_time, end_time = config.get_time_window()
+    expected_end = datetime(2025, 1, 1, 10, 0, 0, 0, tzinfo=timezone.utc)
+    expected_start = expected_end - timedelta(hours=3)
+
+    start_time, end_time = config_default.get_time_window()
 
     assert (start_time, end_time) == (expected_start, expected_end)
-    assert config._last_new_day_attempted == expected_start.date()
 
-@freeze_time("2025-01-02 10:15:00")
-def test_get_time_window_already_attempted(config):
+@freeze_time("2025-01-01 10:15:00")
+def test_get_time_window_custom(config_custom):
     """
-    If we call the same method on the same day, it should return (None, None).
+    The custom config (24-hour window) should return a window ending with the current hour (01/01 10:00)
+    and starting 1 day prior (31/12 10:00).
     """
-    # First run
-    config.get_time_window()
-    assert config._last_new_day_attempted == datetime(2025, 1, 1).date()
+    expected_end = datetime(2025, 1, 1, 10, 0, 0, 0, tzinfo=timezone.utc)
+    expected_start = expected_end - timedelta(hours=24)
 
-    # Second run
-    start_time, end_time = config.get_time_window()
-    assert (start_time, end_time) == (None, None)
-
-@freeze_time("2025-01-02 10:15:00")
-def test_get_time_window_prioritises_retry_queue(config):
-    """
-    Ensure that the query config prioritises times in the retry queue
-    over anything else.
-    """
+    start_time, end_time = config_custom.get_time_window()
     
-    # Failed jobs that appear in the retry queue
-    retry_job_1 = datetime(2024, 12, 31, 0, 0, 0, tzinfo=timezone.utc)
-    retry_job_2 = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
-    config._retry_queue = [retry_job_1, retry_job_2]
-
-    # First round
-    start_time_1, end_time_1 = config.get_time_window()
-    assert start_time_1 == retry_job_1
-    assert end_time_1 == retry_job_1 + timedelta(days=1)
-    assert len(config._retry_queue) == 1
-    assert config._last_new_day_attempted is None
-
-    # Second round
-    start_time_2, _ = config.get_time_window()
-    assert start_time_2 == retry_job_2
-    assert len(config._retry_queue) == 0
-    
-    # Final round - should return yesterday's job
-    start_time_3, end_time_3 = config.get_time_window()
-    expected_start = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
-    expected_end = expected_start + timedelta(days=1)
-    assert start_time_3 == expected_start
-    assert end_time_3 == expected_end
-    assert config._last_new_day_attempted == expected_start.date()
+    assert (start_time, end_time) == (expected_start, expected_end)

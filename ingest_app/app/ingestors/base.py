@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from confluent_kafka import Producer
 from ..api.client import EntsoeClient
 from ..exceptions import InvalidIntervalError, NoDataFoundError
-from ..query_configs import BaseQueryConfig
+from ..query_configs import RecentWindowQueryConfig
 from eugrid_monitor_core.models import EntsoeEvent, DlqIngestionEvent
 from eugrid_monitor_core.topics import DLQ_INGESTION
 import logging
@@ -11,7 +11,7 @@ import logging
 class BaseIngestor(ABC):
     """An abstract base class for all ENTSO-E ingestion services."""
 
-    def __init__(self, producer: Producer, eic_code: str, client: EntsoeClient, query_config: BaseQueryConfig):
+    def __init__(self, producer: Producer, eic_code: str, client: EntsoeClient, query_config: RecentWindowQueryConfig):
         self._producer = producer
         self._eic_code = eic_code
         self._client = client
@@ -72,10 +72,8 @@ class BaseIngestor(ABC):
 
         except InvalidIntervalError as e:
             logging.warning(f"Invalid query duration for {self._eic_code} ({start_time.isoformat()} - {end_time.isoformat()})")
-            self._query_config.report_failure(start_time, e)
         except NoDataFoundError as e:
             logging.warning(f"No data found for {self._eic_code} at {start_time.isoformat()}")
-            self._query_config.report_failure(start_time, e)
 
         # All other exceptions are added to the DLQ.
         except Exception as e:
