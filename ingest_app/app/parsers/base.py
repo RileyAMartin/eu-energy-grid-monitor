@@ -164,7 +164,7 @@ class BaseEntsoeParser(ABC):
             if ns:
                 return {"doc": ns}
             else:
-                {"doc": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"}
+                return {"doc": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"}
         except ValueError:
             return {"doc": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"}
 
