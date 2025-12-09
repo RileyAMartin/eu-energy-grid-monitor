@@ -1,7 +1,6 @@
 import base64
 import json
 from datetime import datetime
-from typing import List
 from pydantic import BaseModel, field_validator
 
 class EntsoeEvent(BaseModel):
@@ -20,8 +19,9 @@ class EnrichedGenerationEvent(RawGenerationEvent):
     """Represents an enriched generation event that will be uploaded to Kafka."""
     eic_display_name: str
     eic_long_name: str
-    countries: List[str]
+    countries: list[str]
     carbon_output_kg_co2e: float
+    quantity_mwh: float
     psr_type_name: str
 
 class EventJSONDecoder(json.JSONEncoder):

@@ -2,13 +2,16 @@ import pytest
 import os
 from datetime import datetime, timedelta, timezone
 from eugrid_monitor_core.models import RawGenerationEvent
-from ingest_app.app.parsers.generation import parse_generation_document
+from ingest_app.app.parsers.generation import GenerationParser
 
 _test_dir = os.path.dirname(os.path.abspath(__file__))
 _test_data_dir = os.path.join(os.path.dirname(_test_dir), "test_data")
 _GENERATION_TEST_HAPPY_FILE_PATH = os.path.join(_test_data_dir, "generation-test-happy.xml")
 _GENERATION_TEST_MISSING_TIMESERIES_FILE_PATH = os.path.join(_test_data_dir, "generation-test-missing-timeseries.xml")
 
+@pytest.fixture
+def parser():
+    return GenerationParser()
 
 @pytest.fixture
 def generation_document_happy():
@@ -20,7 +23,7 @@ def generation_document_missing_timeseries():
     with open(_GENERATION_TEST_MISSING_TIMESERIES_FILE_PATH) as f:
         return f.read()
 
-def test_parse_generation_document_happy(generation_document_happy):
+def test_parse_generation_document_happy(parser, generation_document_happy):
     """All events should be returned with the correct attributes."""
     # Attributes of test events
     eic_code = "10Y1001A1001A016"
@@ -63,12 +66,12 @@ def test_parse_generation_document_happy(generation_document_happy):
         start_time = end_time
         test_events.append(new_event)
 
-    events = parse_generation_document(generation_document_happy)
+    events = parser.parse(generation_document_happy)
 
     assert len(events) == len(test_events)
     for e in events:
         assert e in test_events
 
-def test_parse_generation_document_missing_timeseries(generation_document_missing_timeseries):
+def test_parse_generation_document_missing_timeseries(parser, generation_document_missing_timeseries):
     """An empty list should be returned on a missing timeseries."""
-    assert parse_generation_document(generation_document_missing_timeseries) == []
+    assert parser.parse(generation_document_missing_timeseries) == []

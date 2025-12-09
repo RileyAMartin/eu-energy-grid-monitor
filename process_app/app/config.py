@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
-from typing import List
 from eugrid_monitor_core.topics import RAW_GENERATION_EVENTS, ENRICHED_GENERATION_EVENTS
 from eugrid_monitor_core.models import RawGenerationEvent
 from .processors.generation import process_generation_event
@@ -60,7 +59,7 @@ class Settings(BaseSettings):
     EIC_MAPPINGS: dict = _load_eic_codes_from_json(_EIC_MAPPINGS_FILE_PATH)
     PSR_TYPE_MAPPINGS: dict = _load_psr_types_from_json(_PSR_TYPE_MAPPINGS_FILE_PATH)
     PROCESSING_DISPATCHER: dict = PROCESSING_DISPATCHER
-    RAW_TOPICS: List[str] = list(PROCESSING_DISPATCHER.keys())
+    RAW_TOPICS: list[str] = list(PROCESSING_DISPATCHER.keys())
 
     model_config = ConfigDict(
         extra="ignore"
