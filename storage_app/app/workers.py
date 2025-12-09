@@ -86,8 +86,6 @@ class StorageWorker(ServiceWorker):
 
     def _flush_buffers(self):
         """Writes the buffered events to the db."""
-        all_commits_successful = True
-
         for topic, events in self._event_buffers.items():
             if not events:
                 continue
@@ -102,14 +100,13 @@ class StorageWorker(ServiceWorker):
                     events
                 )
                 self._event_buffers[topic] = []
-            
+
             except Exception as e:
                 logging.error(f"DB insert failed for {topic}: {e}")
-                all_commits_successful = False
+                raise e
 
-        if all_commits_successful:
-            self._consumer.commit(asynchronous=False)
-            self._last_flush_time = time.time()
+        self._consumer.commit(asynchronous=False)
+        self._last_flush_time = time.time()
         
     def _handle_dlq(self, msg, error):
         """Uploads a failed msg to the DLQ, along with its error details."""
@@ -128,11 +125,8 @@ class StorageWorker(ServiceWorker):
 
     def shutdown(self) -> None:
         logging.info("Shutting down storage worker...")
-        
-        # Flush any remaining events
         if any(self._event_buffers.values()):
             self._flush_buffers()
-        
         if self._db_connection:
             self._db_connection.close()
         if self._consumer:
