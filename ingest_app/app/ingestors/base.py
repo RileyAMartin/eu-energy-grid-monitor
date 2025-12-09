@@ -53,22 +53,11 @@ class BaseIngestor(ABC):
 
             # Add the events to Kafka
             for event in events:
-                try:
-                    self._producer.produce(
+                self._produce_safe(
                         self.topic_name,
                         key=self._eic_code,
                         value=event.model_dump_json()
                     )
-                except BufferError:
-                    logging.warning("Local producer queue is full. Flushing queue before continuing.")
-                    self._producer.flush()
-                    logging.warning("Local producer flushed. Retrying the message.")
-                    self._producer.produce(
-                        self.topic_name,
-                        key=self._eic_code,
-                        value=event.model_dump_json()
-                    )
-                self._producer.poll(0)
 
         except InvalidIntervalError as e:
             logging.warning(f"Invalid query duration for {self._eic_code} ({start_time.isoformat()} - {end_time.isoformat()})")
@@ -87,20 +76,20 @@ class BaseIngestor(ABC):
                     error_type=type(e).__name__,
                     error_msg=str(e)
                 )
-                try:
-                    self._producer.produce(
-                        topic=DLQ_INGESTION,
-                        key=self._eic_code,
-                        value=dlq_event.model_dump_json()
-                    )
-                except BufferError:
-                    logging.warning(f"Local producer queue is full. Flushing before continuing.")
-                    self._producer.flush()
-                    logging.warning("Local producer flushed. Retrying the message.")
-                    self._producer.produce(
-                        topic=DLQ_INGESTION,
-                        key=self._eic_code,
-                        value=dlq_event.model_dump_json()
-                    )
+                self._produce_safe(
+                    topic=DLQ_INGESTION,
+                    key=self._eic_code,
+                    value=dlq_event.model_dump_json()
+                )
             except Exception as dlq_e:
                 logging.error(f"Couldn't produce error to DLQ: {dlq_e}", exc_info=True)
+
+    def _produce_safe(self, topic, key, value):
+        """Polls after producing an event to make it safer."""
+        while True:
+            try:
+                self._producer.produce(topic, key=key, value=value)
+                self._producer.poll(0)
+                break
+            except BufferError:
+                self._producer.poll(1)
