@@ -25,9 +25,14 @@ class EnrichedGenerationEvent(RawGenerationEvent):
     psr_type_name: str
 
 class RawPriceEvent(EntsoeEvent):
-    """Model to represent a raw pricing event from the ENTSO-E API."""
+    """Model to represent a raw price event from the ENTSO-E API."""
     price_amount: float
     currency: str  # 3 char format (e.g. "EUR")
+
+class EnrichedPriceEvent(RawPriceEvent):
+    eic_display_name: str
+    eic_long_name: str
+    countries: list[str]
 
 class EventJSONDecoder(json.JSONEncoder):
     """Custom decoder to convert events to JSON format."""

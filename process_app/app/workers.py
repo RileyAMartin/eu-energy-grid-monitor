@@ -60,10 +60,10 @@ class ProcessingWorker(ServiceWorker):
             
             # Convert the raw event to a list of enriched events 
             processing_function = processor_config["processing_function"]
+            fn_kwargs = processor_config.get("kwargs", {})
             enriched_events = processing_function(
                 raw_event,
-                settings.PSR_TYPE_MAPPINGS,
-                settings.EIC_MAPPINGS
+                **fn_kwargs
             )
 
             # Produce the enriched events to Kafka

@@ -3,9 +3,10 @@ import os
 from dotenv import load_dotenv
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
-from eugrid_monitor_core.topics import RAW_GENERATION_EVENTS, ENRICHED_GENERATION_EVENTS
-from eugrid_monitor_core.models import RawGenerationEvent
+from eugrid_monitor_core.topics import RAW_GENERATION_EVENTS, RAW_PRICE_EVENTS, ENRICHED_GENERATION_EVENTS, ENRICHED_PRICE_EVENTS
+from eugrid_monitor_core.models import RawGenerationEvent, RawPriceEvent
 from .processors.generation import process_generation_event
+from .processors.price import process_price_event
 
 load_dotenv()
 
@@ -27,7 +28,7 @@ def _load_psr_types_from_json(filepath: str) -> dict:
     try:
         with open(filepath, "r") as f:
             psr_types_json = json.load(f)
-        
+
         psr_types = {}
         for obj in psr_types_json:
             psr_types[obj["code"]] = {
@@ -38,12 +39,27 @@ def _load_psr_types_from_json(filepath: str) -> dict:
     except FileNotFoundError:
         return {}
 
+_EIC_MAPPINGS = _load_eic_codes_from_json(_EIC_MAPPINGS_FILE_PATH)
+_PSR_TYPE_MAPPINGS = _load_psr_types_from_json(_PSR_TYPE_MAPPINGS_FILE_PATH)
+
 # Processing functions, raw models and enriched topics for each raw data topic in the queue
 PROCESSING_DISPATCHER = {
     RAW_GENERATION_EVENTS: {
         "enriched_topic": ENRICHED_GENERATION_EVENTS,
         "processing_function": process_generation_event,
-        "model": RawGenerationEvent
+        "model": RawGenerationEvent,
+        "kwargs": {
+            "psr_type_mappings": _PSR_TYPE_MAPPINGS,
+            "eic_mappings": _EIC_MAPPINGS
+        }
+    },
+    RAW_PRICE_EVENTS: {
+        "enriched_topic": ENRICHED_PRICE_EVENTS,
+        "processing_function": process_price_event,
+        "model": RawPriceEvent,
+        "kwargs": {
+            "eic_mappings": _EIC_MAPPINGS
+        }
     }
 }
 

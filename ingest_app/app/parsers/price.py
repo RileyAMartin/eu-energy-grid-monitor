@@ -1,7 +1,7 @@
 from .base import BaseEntsoeParser
 from eugrid_monitor_core.models import RawPriceEvent
 
-class PricingParser(BaseEntsoeParser):
+class PriceParser(BaseEntsoeParser):
     """
     Parser for price documents from the ENTSO-E API.
     """
@@ -15,7 +15,7 @@ class PricingParser(BaseEntsoeParser):
             return
         
         # Extract currency
-        currency_node = ts_node.xpath(".//doc: currency_Unit.name", namespaces=nsmap)
+        currency_node = ts_node.xpath(".//doc:currency_Unit.name", namespaces=nsmap)
         currency = currency_node[0].text.strip() if currency_node else "EUR"
 
         return {
@@ -23,7 +23,7 @@ class PricingParser(BaseEntsoeParser):
             "currency": currency
         }
 
-    def extract_point_data(self, point_node, nsmap) -> dict:
+    def _extract_point_data(self, point_node, nsmap) -> dict:
         """
         Extracts the price amount from the Point.
         """
