@@ -10,7 +10,7 @@ class EntsoeEvent(BaseModel):
     end_time: datetime
 
 class RawGenerationEvent(EntsoeEvent):
-    """Model to represent a raw generation event consumed from Kafka."""
+    """Model to represent a raw generation event from the ENTSO-E API."""
     quantity_mw: float
     psr_type_code: str
     measurement_unit: str
@@ -23,6 +23,16 @@ class EnrichedGenerationEvent(RawGenerationEvent):
     carbon_output_kg_co2e: float
     quantity_mwh: float
     psr_type_name: str
+
+class RawPriceEvent(EntsoeEvent):
+    """Model to represent a raw price event from the ENTSO-E API."""
+    price_amount: float
+    currency: str  # 3 char format (e.g. "EUR")
+
+class EnrichedPriceEvent(RawPriceEvent):
+    eic_display_name: str
+    eic_long_name: str
+    countries: list[str]
 
 class EventJSONDecoder(json.JSONEncoder):
     """Custom decoder to convert events to JSON format."""

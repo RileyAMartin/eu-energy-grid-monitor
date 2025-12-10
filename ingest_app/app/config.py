@@ -11,6 +11,7 @@ _app_dir_path = os.path.dirname(os.path.abspath(__file__))
 _config_dir_path = os.path.join(_app_dir_path, "..", "config")
 _EIC_CODES_FILE_PATH = os.path.join(_config_dir_path, "eic_codes_all.txt")
 _GENERATION_EIC_CODES_FILE_PATH = os.path.join(_config_dir_path, "eic_codes_generation.txt")
+_PRICE_EIC_CODES_FILE_PATH = os.path.join(_config_dir_path, "eic_codes_price.txt")
 
 def _load_eic_codes_from_file(filepath: str) -> list[str]:
     """Reads a list of EIC codes from a text file, one per line."""
@@ -39,6 +40,7 @@ class Settings(BaseSettings):
     ENTSOE_API_URL: str = "https://web-api.tp.entsoe.eu/api"
     EIC_CODES: list[str] = _load_eic_codes_from_file(_EIC_CODES_FILE_PATH)
     EIC_CODES_GENERATION: list[str] = _load_eic_codes_from_file(_GENERATION_EIC_CODES_FILE_PATH)
+    EIC_CODES_PRICE: list[str] = _load_eic_codes_from_file(_PRICE_EIC_CODES_FILE_PATH)
     DEEP_BACKFILL_HOUR_UTC: int = 2
 
     model_config = ConfigDict(

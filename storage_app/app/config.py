@@ -3,8 +3,8 @@ from typing import Type, Optional
 from dotenv import load_dotenv
 from pydantic import ConfigDict, BaseModel
 from pydantic_settings import BaseSettings
-from eugrid_monitor_core.models import EnrichedGenerationEvent
-from eugrid_monitor_core.topics import ENRICHED_GENERATION_EVENTS
+from eugrid_monitor_core.models import EnrichedGenerationEvent, EnrichedPriceEvent
+from eugrid_monitor_core.topics import ENRICHED_GENERATION_EVENTS, ENRICHED_PRICE_EVENTS
 
 load_dotenv()
 
@@ -47,6 +47,24 @@ DB_MAPPINGS = {
             "psr_type_code",
             "psr_type_name",
             "countries",
+            "start_time",
+            "end_time"
+        ]
+    ),
+    ENRICHED_PRICE_EVENTS: TableMapping(
+        table_name="energy_price_events",
+        model=EnrichedPriceEvent,
+        conflict_columns=[
+            "eic_code",
+            "start_time"
+        ],
+        override_columns=[
+            "eic_code",
+            "eic_display_name",
+            "eic_long_name",
+            "countries",
+            "price_amount",
+            "currency",
             "start_time",
             "end_time"
         ]

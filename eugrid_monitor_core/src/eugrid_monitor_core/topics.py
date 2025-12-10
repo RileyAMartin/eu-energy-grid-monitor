@@ -1,4 +1,6 @@
 RAW_GENERATION_EVENTS = "raw-generation-events"
+RAW_PRICE_EVENTS = "raw-price-events"
+ENRICHED_PRICE_EVENTS = "enriched-price-events"
 ENRICHED_GENERATION_EVENTS = "enriched-generation-events"
 DLQ_INGESTION = "dlq-ingestion"
 DLQ_PROCESSING = "dlq-processing"

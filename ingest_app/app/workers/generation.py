@@ -23,10 +23,10 @@ class GenerationIngestionWorker(ServiceWorker):
         now = datetime.now(timezone.utc)
 
         if now.hour == self._deep_backfill_hour:
-            logging.info(f"--- Beginning daily deep backfill (72 hours) ---")
+            logging.info(f"--- Beginning generation deep backfill (72 hours) ---")
             query_config = RecentWindowQueryConfig(hours_to_fetch=72)
         else:
-            logging.info(f"--- Beginning hourly backfill (3 hours) ---")
+            logging.info(f"--- Beginning generation hourly backfill (3 hours) ---")
             query_config = RecentWindowQueryConfig(hours_to_fetch=3)
         
         for i, eic_code in enumerate(settings.EIC_CODES_GENERATION):
@@ -41,9 +41,8 @@ class GenerationIngestionWorker(ServiceWorker):
             ingestor.run_ingestion_cycle()
 
     def shutdown(self) -> None:
-        logging.info("Flushing Kafka producer...")
-        remaining = self._producer.flush(timeout=10)
-        if remaining > 0:
-            logging.warning(f"--- {remaining} messages failed to deliver to Kafka. ---")
-        else:
-            logging.info("Kafka producer flushed successfully.")
+        """
+        The generation worker's resources are managed by the orchestrator,
+        so it doesn't need to anything here.
+        """
+        pass
