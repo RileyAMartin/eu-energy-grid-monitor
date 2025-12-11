@@ -42,17 +42,17 @@ class StorageWorker(ServiceWorker):
             "sasl.mechanism": "PLAIN",
             "sasl.username": settings.KAFKA_SASL_USERNAME,
             "sasl.password": settings.KAFKA_SASL_PASSWORD,
-        }        
+        }
         self._producer = Producer(producer_config)
 
         self._consumer = Consumer({
             **producer_config,
             "group.id": settings.KAFKA_GROUP_ID,
             "enable.auto.commit": "false",
-            "auto.offset.reset": "earliest"
+            "auto.offset.reset": "earliest",
         })
         self._consumer.subscribe(list(settings.DB_MAPPINGS.keys()))
-        logging.info("Kafka connected.")        
+        logging.info("Kafka connected.")
 
     def run_cycle(self) -> None:
         """Consumes enriched events from Kafka and uploads them to the db."""
@@ -62,17 +62,17 @@ class StorageWorker(ServiceWorker):
             if msg.error():
                 if msg.error().code() != KafkaError._PARTITION_EOF:
                     logging.error(f"Kafka error: {msg.error()}")
-                else:
-                    topic = msg.topic()
-                    try:
-                        # Load the raw event and add it to the buffers
-                        raw_message = json.loads(msg.value().decode("utf-8"))
-                        model = settings.DB_MAPPINGS[topic].model
-                        event = model.model_validate(raw_message)
-                        self._event_buffers[topic].append(event.model_dump(mode="json"))
-                    except (json.JSONDecodeError, ValidationError) as e: 
-                        self._handle_dlq(msg, e)
-                        self._consumer.commit(message=msg, asynchronous=False)
+            else:
+                topic = msg.topic()
+                try:
+                    # Load the raw event and add it to the buffers
+                    raw_message = json.loads(msg.value().decode("utf-8"))
+                    model = settings.DB_MAPPINGS[topic].model
+                    event = model.model_validate(raw_message)
+                    self._event_buffers[topic].append(event.model_dump(mode="json"))
+                except (json.JSONDecodeError, ValidationError) as e: 
+                    self._handle_dlq(msg, e)
+                    self._consumer.commit(message=msg, asynchronous=False)
 
         # If more than 10 seconds have passed, or the buffer limit is surpassed, flush the buffers
         current_time = time.time()
@@ -93,12 +93,14 @@ class StorageWorker(ServiceWorker):
             config = settings.DB_MAPPINGS[topic]
             try:
                 self._repo.bulk_insert(
-                    self._db_connection, 
                     config.table_name, 
                     config.columns, 
                     config.conflict_columns, 
                     events
                 )
+
+                logging.info(f"Topic {topic}: Buffer flushed. Sent {len(events)} events.")
+
                 self._event_buffers[topic] = []
 
             except Exception as e:

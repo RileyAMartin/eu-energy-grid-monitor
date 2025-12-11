@@ -28,16 +28,14 @@ class PostgresRepo():
         if not conflict_columns:
             insert_query = f"""
                 INSERT INTO {table_name} ({", ".join(f'"{c}"' for c in columns)})
-                VALUES %s
-                RETURNING 1;
+                VALUES %s;
             """
         else:
             insert_query = f"""
                 INSERT INTO {table_name} ({", ".join(f'"{c}"' for c in columns)})
                 VALUES %s
                 ON CONFLICT ({", ".join(f'"{c}"' for c in conflict_columns)})
-                DO NOTHING
-                RETURNING 1;
+                DO NOTHING;
             """
 
         cursor = None
@@ -48,11 +46,10 @@ class PostgresRepo():
                 insert_query,
                 data_tuples,
                 template=None,
-                page_size=1000,
-                fetch=True
+                page_size=1000
             )
             self._conn.commit()
-            
+
             return cursor.rowcount if cursor.rowcount != -1 else len(events)
             
         except Exception as e:
