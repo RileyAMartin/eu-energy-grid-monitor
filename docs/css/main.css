@@ -13,6 +13,16 @@
     box-sizing: border-box;
 }
 
+html {
+    overflow-x: hidden;
+}
+
+.grid,
+.panel,
+.chart-container {
+    max-width: 100vw;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -363,10 +373,17 @@ body.landing-page {
 
 /* Mobile/Tablet */
 @media (max-width: 1200px) {
+    .grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
     #chart-main, #chart-pie, #chart-aggregated, #chart-gauge {
-        grid-column: span 24;
+        width: 100%;
         margin-bottom: 16px;
     }
+
     .info-icon.right-side::after {
         left: 50%;
         right: auto;
@@ -395,6 +412,11 @@ body.landing-page {
     .hero-title { font-size: 1.8rem; }
     .cta-buttons { flex-direction: column; }
     .tech-grid { grid-template-columns: 1fr; }
+    .hero-section {
+        margin: 0 -12px 24px -12px;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
 }
 
 /* Desktop */
