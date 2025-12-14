@@ -238,7 +238,12 @@
                         color: '#2c3235', 
                         type: 'dashed'
                     } 
-                }
+                },
+                axisPointer: {
+                    label: {
+                        show: false
+                    }
+                },
             },
             yAxis: { 
                 type: 'value',
@@ -321,7 +326,12 @@
                         color: '#2c3235', 
                         type: 'dashed'
                     }
-                }
+                },
+                axisPointer: {
+                    label: {
+                        show: false
+                    }
+                },
             },
             yAxis: { 
                 type: 'value', 
@@ -343,7 +353,12 @@
                         return value + ' MW';
                     }
                 },
-                axisLine: { show: false }
+                axisLine: { show: false },
+                axisPointer: {
+                    label: {
+                        show: false
+                    }
+                },
             },
             series: aggKeys.map(key => ({
                 name: key,
