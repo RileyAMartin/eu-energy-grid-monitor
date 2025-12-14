@@ -1,0 +1,54 @@
+name: Data Pipeline & Deploy
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install psycopg2-binary python-dotenv regex
+
+      - name: Run Generation Data Script
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: python scripts/generate_generation_data.py
+
+      - name: Run Prices Data Script
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: python scripts/generate_prices_data.py
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          publish_branch: gh-pages
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'

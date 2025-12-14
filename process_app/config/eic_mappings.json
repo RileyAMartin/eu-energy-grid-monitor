@@ -219,7 +219,7 @@
     },
     "10Y1001A1001A82H": {
         "eic_display_name": "DE_LU",
-        "eic_long_name": "Germany_Luxemburg",
+        "eic_long_name": "Germany-Luxembourg",
         "countries": [
             "de",
             "lu"
@@ -262,15 +262,15 @@
         ]
     },
     "10Y1001A1001A885": {
-        "eic_display_name": "IT-SACO_AC",
-        "eic_long_name": "Italy Saco_AC",
+        "eic_display_name": "IT-SACOAC",
+        "eic_long_name": "Italy Saco (AC)",
         "countries": [
             "it"
         ]
     },
     "10Y1001A1001A893": {
         "eic_display_name": "IT-SACODC",
-        "eic_long_name": "Italy Saco_DC",
+        "eic_long_name": "Italy Saco (DC)",
         "countries": [
             "it"
         ]
@@ -411,7 +411,7 @@
     },
     "10Y1001C--00100H": {
         "eic_display_name": "CAKOSTT",
-        "eic_long_name": "Control Area Kosovo*",
+        "eic_long_name": "Control Area Kosovo",
         "countries": [
             "xk"
         ]

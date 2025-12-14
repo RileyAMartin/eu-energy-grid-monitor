@@ -8,8 +8,8 @@ __pycache__
 
 # Project files
 .env
-docs
+resources
 photos
-scripts
 TODO.txt
 local_backfill.py
+docs/data/
