@@ -8,6 +8,7 @@
     height: 60px;
     position: relative;
     z-index: 1000;
+    flex-shrink: 0;
 }
 
 .nav-brand {
@@ -116,5 +117,18 @@
         background: linear-gradient(to right, rgba(255, 152, 48, 0.1), transparent);
         border-bottom-color: transparent;
         border-left-color: #FF9830;
+    }
+
+    .info-icon::after {
+        width: 200px;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: normal;
+    }
+
+    .info-icon.right-side::after {
+        left: auto;
+        right: 0;
+        transform: none; 
     }
 }

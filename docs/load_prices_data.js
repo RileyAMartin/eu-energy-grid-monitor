@@ -318,12 +318,22 @@ function renderCurrentData() {
             type: 'category', boundaryGap: false,
             data: filteredData.map(pt => formatTime(pt[0])),
             axisLabel: { color: '#8e8e8e' },
-            splitLine: { show: true, lineStyle: { color: '#2c3235', type: 'dashed' } }
+            splitLine: { show: true, lineStyle: { color: '#2c3235', type: 'dashed' } },
+            axisPointer: {
+                label: {
+                    show: false
+                }
+            },
         },
         yAxis: {
             type: 'value', scale: true,
             splitLine: { lineStyle: { color: '#2c3235', type: 'dashed' } },
-            axisLabel: { color: '#8e8e8e', formatter: '{value} €' }
+            axisLabel: { color: '#8e8e8e', formatter: '{value} €' },
+            axisPointer: {
+                label: {
+                    show: false
+                }
+            },
         },
         series: [{
             name: 'Price', type: 'line', showSymbol: false,
