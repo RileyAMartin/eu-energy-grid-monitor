@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>European Energy Prices - Grid Monitor</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">    
+    
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <a href="index.html">
+                EU Energy Grid Monitor
+            </a>
+        </div>
+
+        <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">Overview</a>
+            <a href="generation.html">Generation</a>
+            <a href="prices.html" class="active">Prices</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>
+                Energy Price Metrics
+                <span class="info-icon" 
+                    data-tooltip="Data Source: ENTSO-E Transparency Platform. Timezone: UTC. Updates occur every 4 hours.">
+                    i
+                </span>
+            </h1>
+            <div class="controls">
+                <select id="zoneSelector" onchange="loadZoneData(this.value)">
+                    <option value="" disabled selected>Select a Region</option>
+                </select>
+                
+                <select id="timeSelector" onchange="renderCurrentData()">
+                    <option value="24" selected>Last 24 Hours</option>
+                    <option value="168">Last 7 Days</option>
+                    <option value="720">Last 30 Days</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="grid" id="dashboardContent">
+            
+            <div class="panel" id="chart-main"> <div class="panel-header">
+                    <h2>Price (€/MWh) vs. Clean Generation (MW)</h2>
+                    <span class="info-icon" data-tooltip="Correlates the price of energy (Y-axis) with the volume of clean energy produced (X-axis).">i</span>
+                </div>
+                <div id="viz_scatter" class="chart-container"></div>
+            </div>
+
+            <div class="panel" id="chart-pie"> <div class="panel-header">
+                    <h2>Price Intensity (Heatmap)</h2>
+                    <span class="info-icon right-side" data-tooltip="A heatmap showing price intensity by hour of the day. Red indicates high prices, green indicates low/negative prices.">i</span>
+                </div>
+                <div id="viz_heatmap" class="chart-container"></div>
+            </div>
+
+            <div class="panel" id="chart-aggregated"> <div class="panel-header">
+                    <h2>Price History (€/MWh)</h2>
+                    <span class="info-icon" data-tooltip="The fluctuation of Day-Ahead energy prices over the selected time period.">i</span>
+                </div>
+                <div id="viz_series" class="chart-container"></div>
+            </div>
+
+            <div class="panel" id="chart-gauge">
+                <div class="panel-header">
+                    <h2 id="gaugeTitle">Latest Prices (All Zones)</h2>
+                    <span class="info-icon right-side" data-tooltip="The most recent Day-Ahead price for every zone, sorted from highest to lowest.">i</span>
+                </div>
+                
+                <div class="scroll-wrapper">
+                    <div id="viz_gauge" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+<script>
+    const hamburger = document.getElementById('hamburger-btn');
+    const navLinks = document.getElementById('nav-links');
+
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('open');
+    });
+</script>
+
+<script src="load_prices_data.js" defer></script>
+
+</body>
+</html>
