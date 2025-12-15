@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Process & Challenges | EU Energy Grid Monitor</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">    
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <a href="index.html">EU Energy Grid Monitor</a>
+        </div>
+        <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation">
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </button>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">Overview</a>
+            <a href="process.html" class="active">Process</a> 
+            <a href="generation.html">Generation</a>
+            <a href="prices.html">Prices</a>
+        </div>
+    </nav>
+
+    <div class="landing-container">
+        <div class="landing-content">
+
+            <div class="blog-header">
+                <h1>Building the Pipeline</h1>
+                <p>Challenges, architectural decisions, and lessons learned.</p>
+            </div>
+
+            <div class="panel blog-content">
+                
+                <h2>Project Overview</h2>
+                <p>
+                    The EU Energy Grid Monitor is a data engineering pipeline that ingests, processes, and visualizes real-time energy data from across Europe. 
+                    It is built with a decoupled microservices architecture using Python, Docker, Apache Kafka, and CockroachDB, designed to run entirely on free-tier infrastructure.
+                </p>
+
+                <h2>1. Motivation & Constraints</h2>
+                <p>
+                    I was motivated to do this project following my exchange semester at IE University in Madrid, Spain. I took a "Big Data Technologies" course where we studied data streaming concepts and Apache Kafka theoretically, but never had the opportunity to implement them in a live environment.
+                </p>
+                <p>
+                    I built this project to bridge that gap between theory and practice. My primary goal was to learn data engineering and streaming principles hands-on. 
+                    To focus on learning and improving my skills, I imposed a strict requirement: the entire infrastructure cost must be $0. This constraint drove every major architectural decision, from the choice of database to the hosting strategy.
+                </p>
+                
+                <h2>2. The Pipeline Architecture</h2>
+                <p>
+                    While the data ingestion could technically be handled by a simple cron job, I architected a streaming solution to gain experience with event-driven systems. The core pipeline consists of three decoupled Python applications orchestrated via Docker:
+                </p>
+                <ul>
+                    <li><strong>Ingest App:</strong> Polls the ENTSO-E API hourly, parsing raw XML documents and producing events to specific Kafka topics (e.g., raw-generation-events).</li>
+                    <li><strong>Process App:</strong> Consumes raw events and enriches them with business logic, mapping EIC codes to readable country names, calculating Carbon emissions based on generation type, and standardizing time intervals.</li>
+                    <li><strong>Storage App:</strong> A sink service that consumes enriched events and persists them to CockroachDB.</li>
+                </ul>
+                
+                <p>
+                    The applications run on a free Oracle VM (1GB RAM) utilizing swap space to manage memory constraints. 
+                    They do not communicate directly; instead, they rely on a Kafka cluster hosted on Confluent Cloud, ensuring the system remains decoupled and resilient.
+                </p>
+                <p>
+                    To ensure extensibility, I used an object-oriented approach. Adding a new metric (e.g., load or transmission) requires minimal boilerplate - simply creating new classes that inherit from the base ingestion logic. The business logic is backed by a pytest suite to prevent regressions during updates.
+                </p>
+
+                <h2>3. Data Challenges & Solutions</h2>
+                <h3>Domain Complexity</h3>
+                <p>
+                    The energy domain is complex. Mapping EIC (Energy Identification Code) values to specific regions was difficult, as some codes represent single countries while others represent specific bidding zones or multiple countries.
+                    Furthermore, finding reliable carbon intensity factors for specific generation types required extensive research. I ensured accuracy by sourcing and citing every CO2 figure used in the mapping logic.
+                </p>
+
+                <h3>Scaling & Storage</h3>
+                <p>
+                    I initially built the persistence layer on Supabase (PostgreSQL). However, the backfilling process quickly exceeded their free-tier limits, and I had to migrate to CockroachDB, which was able to handle the full volume. As of December 2025, the database hosts over 12 million generation events and 1.8 million price events.
+                </p>
+
+                <h3>Data Consistency & Idempotency</h3>
+                <p>
+                    The ENTSO-E API doesn't guarantee data availability for the most recent hour immediately. To handle this, the ingest app utilizes a deep backfill strategy:
+                </p>
+                <ul>
+                    <li>Every hour, it requests the last 4 hours of data.</li>
+                    <li>Every day, it performs a deep fetch of the last 3 days.</li>
+                </ul>
+                <p>
+                    To support this, the storage logic was designed to be idempotent. It handles duplicate data arrival, ensuring that aggressive backfilling corrects missing data without corrupting the tables.
+                </p>
+
+                <h2>4. The Frontend</h2>
+                <p>
+                    Visualizing the data presented an unexpected deployment challenge. I originally built comprehensive dashboards using Grafana. However, I realized that safely hosting a public Grafana instance was not feasible on a $0 budget without exposing the database to expensive, uncontrolled queries. To resolve this, I pivoted to a static dashboard architecture using GitHub Pages. 
+                </p>
+                <p>
+                    Currently, a Python script runs every 4 hours via GitHub Actions and queries against CockroachDB, before saving the results as static JSON files on a dedicated GitHub branch.
+                </p>
+                <p>
+                    To replace the Grafana dashboards, I built a custom frontend using Apache ECharts. I used AI tools to accelerate the development of the frontend, allowing me to focus on the backend. This way, I was able to create a zero-cost dashboard that updates in near real-time without any risk of expensive queries.
+                </p>
+
+                <h2>5. Future Improvements</h2>
+                <p>
+                    The project is currently functional, but, in the future, I'd like to add:
+                </p>
+                <ul>
+                    <li>Cross-border flows to visualise energy imports and exports.</li>
+                    <li>Energy load metrics to analyse grid stress.</li>
+                    <li>Possibly a notification service for specific grid events like negative pricing.</li>
+                </ul>
+            </div>
+
+            <footer style="margin-top: 80px; border-top: 1px solid var(--border-color); padding: 40px 0; text-align: center; color: var(--text-secondary);">
+                <p style="margin-bottom: 12px;">Built by <strong>Riley Martin</strong></p>
+                <div>
+                    <a href="https://github.com/RileyAMartin/eu-energy-grid-monitor" target="_blank" style="color: var(--accent-blue); text-decoration: none; margin: 0 12px;">GitHub Repository</a>
+                    <a href="https://linkedin.com/in/riley-martin-506756351" target="_blank" style="color: var(--accent-blue); text-decoration: none; margin: 0 12px;">LinkedIn</a>
+                </div>
+                <p style="margin-top: 24px; font-size: 0.75rem; opacity: 0.6;">
+                    Data Source: ENTSO-E Transparency Platform
+                </p>
+            </footer>
+
+        </div>
+    </div>
+
+    <script>
+        const hamburger = document.getElementById('hamburger-btn');
+        const navLinks = document.getElementById('nav-links');
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            hamburger.classList.toggle('open');
+        });
+    </script>
+</body>
+</html>
