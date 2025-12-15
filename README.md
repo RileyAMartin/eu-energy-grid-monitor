@@ -16,10 +16,10 @@ The pipeline consists of three decoupled Python applications orchestrated via Do
 
 * **Languages:** Python, SQL
 * **Streaming:** Apache Kafka (Confluent Cloud)
-* **Database:** CockroachDB (Serverless)
+* **Database:** CockroachDB
 * **Infrastructure:** Docker, Oracle Cloud Free Tier (VM)
 * **CI/CD:** GitHub Actions
-* **Frontend:** HTML5, CSS3, Apache ECharts
+* **Frontend:** HTML, CSS, Apache ECharts
 
 ## Getting Started
 
