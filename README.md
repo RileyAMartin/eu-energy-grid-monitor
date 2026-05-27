@@ -10,13 +10,13 @@ A data engineering pipeline that ingests, processes, and visualizes real-time en
 The pipeline consists of three decoupled Python applications orchestrated via Docker:
 1.  **Ingest App:** Polls the ENTSO-E API hourly, parses XML, and produces raw messages to Kafka.
 2.  **Process App:** Consumes raw events, enriching them with carbon intensity data and mapping EIC codes to readable zones.
-3.  **Storage App:** An idempotent sink service that persists enriched data to Cockroach DB.
+3.  **Storage App:** An idempotent sink service that persists enriched data to a PostgreSQL database.
 
 ## Tech Stack
 
 * **Languages:** Python, SQL
 * **Streaming:** Apache Kafka (Confluent Cloud)
-* **Database:** CockroachDB
+* **Database:** PostgreSQL
 * **Infrastructure:** Docker, Oracle Cloud Free Tier (VM)
 * **CI/CD:** GitHub Actions
 * **Frontend:** HTML, CSS, Apache ECharts
