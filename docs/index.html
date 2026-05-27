@@ -28,7 +28,7 @@
         </button>
         <div class="nav-links" id="nav-links">
             <a href="index.html" class="active">Overview</a>
-            <a href="process.html">Process</a>
+            <a href="process.html">System Architecture</a>
             <a href="generation.html">Generation</a>
             <a href="prices.html">Prices</a>
         </div>
@@ -52,7 +52,7 @@
                 <h2 style="color: #fff; margin-bottom: 16px;">About the Pipeline</h2>
                 <p style="color: var(--text-secondary); line-height: 1.6; max-width: 800px; margin: 0 auto;">
                     The European Energy Grid Monitor is a data pipeline with an ETL architecture that processes data from the European Union's ENTSO-E API.
-                    It ingests raw XML data from the <strong>ENTSO-E Transparency Platform</strong> every hour, normalizes it via Python producers, buffers messages through <strong>Apache Kafka</strong>, and persists millions of records in a <strong>CockroachDB</strong> cluster.
+                    It ingests raw XML data from the <strong>ENTSO-E Transparency Platform</strong> every hour, normalizes it via Python producers, buffers messages through <strong>Apache Kafka</strong>, and persists millions of records in a <strong>PostgreSQL</strong> database.
                 </p>
             </div>
 
@@ -60,34 +60,30 @@
                 <h2 style="color: #fff; font-size: 1.2rem; margin-bottom: 24px; text-align: center;">System Architecture</h2>
                 <div class="tech-grid">
                     <div class="tech-card">
-                        <div class="tech-icon">🐍</div>
-                        <div class="tech-title">Python Ingestion</div>
+                        <div class="tech-title">Real-Time Monitoring</div>
                         <div class="tech-desc">
-                            Custom ETL scripts fetching XML data from the ENTSO-E API, normalizing schemas, and handling API rate limits.
+                            Tracks electricity generation and pricing across 30+ European countries with hourly updates.
                         </div>
                     </div>
 
                     <div class="tech-card">
-                        <div class="tech-icon">🌊</div>
-                        <div class="tech-title">Apache Kafka</div>
+                        <div class="tech-title">Carbon Intensity</div>
                         <div class="tech-desc">
-                            Hosted on Confluent Cloud. Decouples ingestion from storage, ensuring reliable message buffering and replayability.
+                            Calculates real-time CO₂ emissions for each region based on generation mix and fuel type.
                         </div>
                     </div>
 
                     <div class="tech-card">
-                        <div class="tech-icon">🗄️</div>
-                        <div class="tech-title">CockroachDB</div>
+                        <div class="tech-title">Historical Analysis</div>
                         <div class="tech-desc">
-                            Serverless SQL database (PostgreSQL compatible). Optimized for high-write loads and distributed availability.
+                            Query millions of data points to analyze trends, price patterns, and grid behavior over time.
                         </div>
                     </div>
 
                     <div class="tech-card">
-                        <div class="tech-icon">🐳</div>
-                        <div class="tech-title">Docker & CI/CD</div>
+                        <div class="tech-title">Decoupled Architecture</div>
                         <div class="tech-desc">
-                            Full pipeline containerized with Docker Compose. Automated ingestion workflows managed via GitHub Actions.
+                            Fault-tolerant microservices design ensures reliability and independent scalability of each component.
                         </div>
                     </div>
                 </div>

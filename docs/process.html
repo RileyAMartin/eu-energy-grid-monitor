@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <title>Process & Challenges | EU Energy Grid Monitor</title>
+    <title>System Architecture | EU Energy Grid Monitor</title>
 
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">    
@@ -25,7 +24,7 @@
         </button>
         <div class="nav-links" id="nav-links">
             <a href="index.html">Overview</a>
-            <a href="process.html" class="active">Process</a> 
+            <a href="process.html" class="active">System Architecture</a> 
             <a href="generation.html">Generation</a>
             <a href="prices.html">Prices</a>
         </div>
@@ -35,89 +34,133 @@
         <div class="landing-content">
 
             <div class="blog-header">
-                <h1>Building the Pipeline</h1>
-                <p>Challenges, architectural decisions, and lessons learned.</p>
+                <h1>European Union Energy Grid Monitor: System Architecture</h1>
+                <p>The macro-level engineering design and end-to-end data lifecycle.</p>
             </div>
 
             <div class="panel blog-content">
                 
-                <h2>Project Overview</h2>
-                <p>
-                    The EU Energy Grid Monitor is a data engineering pipeline that ingests, processes, and visualizes real-time energy data from across Europe. 
-                    It is built with a decoupled microservices architecture using Python, Docker, Apache Kafka, and CockroachDB, designed to run entirely on free-tier infrastructure.
-                </p>
+                <img src="assets/architecture_diagram.png" alt="System Architecture Diagram" style="width: 100%; max-width: 900px; margin: 40px 0; border-radius: 8px; border: 1px solid var(--border-color);">
 
-                <h2>1. Motivation & Constraints</h2>
-                <p>
-                    I was motivated to do this project following my exchange semester at IE University in Madrid, Spain. I took a "Big Data Technologies" course where we studied data streaming concepts and Apache Kafka theoretically, but never had the opportunity to implement them in a live environment.
-                </p>
-                <p>
-                    I built this project to bridge that gap between theory and practice. My primary goal was to learn data engineering and streaming principles hands-on. 
-                    To focus on learning and improving my skills, I imposed a strict requirement: the entire infrastructure cost must be $0. This constraint drove every major architectural decision, from the choice of database to the hosting strategy.
-                </p>
                 
-                <h2>2. The Pipeline Architecture</h2>
+                <h2>Tech Stack &amp; Environment Overview</h2>
                 <p>
-                    While the data ingestion could technically be handled by a simple cron job, I architected a streaming solution to gain experience with event-driven systems. The core pipeline consists of three decoupled Python applications orchestrated via Docker:
+                    The system is engineered as a collection of isolated microservices interacting asynchronously over a distributed log backbone. By segregating ingestion, stateless processing, and persistence into discrete runtimes, the architecture achieves greater fault tolerance and horizontal scalability.
+                </p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color);">
+                            <th style="text-align: left; padding: 12px; font-weight: 600;">Component Layer</th>
+                            <th style="text-align: left; padding: 12px; font-weight: 600;">Technology</th>
+                            <th style="text-align: left; padding: 12px; font-weight: 600;">Strategic Architectural Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 12px; font-weight: 500;">Core Runtime Engine</td>
+                            <td style="padding: 12px;">Python 3.10-slim</td>
+                            <td style="padding: 12px;">Provides lightweight, isolated container environments for each execution worker.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 12px; font-weight: 500;">Event Streaming Backbone</td>
+                            <td style="padding: 12px;">Apache Kafka (Confluent Cloud)</td>
+                            <td style="padding: 12px;">Acts as the central message broker, enabling decoupled, asynchronous event streaming and message buffering between services.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 12px; font-weight: 500;">Database &amp; Persistence Tier</td>
+                            <td style="padding: 12px;">Relational Database (PostgreSQL Instance)</td>
+                            <td style="padding: 12px;">Provides transactional storage for structured time-series grid data.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 12px; font-weight: 500;">Data Contract &amp; Validation</td>
+                            <td style="padding: 12px;">Pydantic v2</td>
+                            <td style="padding: 12px;">Enforces data validation and type-safety across all microservice communication channels.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 12px; font-weight: 500;">Infrastructure Orchestration</td>
+                            <td style="padding: 12px;">Docker &amp; Docker Compose</td>
+                            <td style="padding: 12px;">Orchestrates network isolation and ensures identical local and production environments.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Data Lifecycle &amp; Stream Transformations</h2>
+                <p>
+                    Data flows linearly through a series of decoupled microservices, transforming from raw, unstructured external data into enriched, structured time-series indices.
+                </p>
+
+                <h3>1. Ingestion Layer (Ingest App)</h3>
+                <p>
+                    The system initiates data capture through an orchestration layer that triggers polling on a fixed cyclical schedule. The application establishes secure connections to the external ENTSO-E REST API via an egress wrapper resilient to network timeouts.
+                </p>
+                <p>
+                    Because the upstream data provider represents grid metrics in varied XML formats, the ingest app utilises an abstract parser. It standardises various reporting layouts into a single validated structure. Once validated, the payloads are serialised as raw JSON and sent to the Kafka message broker.
+                </p>
+
+                <h3>2. Stateless Compute &amp; Enrichment Layer (Process App)</h3>
+                <p>
+                    The process app operates as a streaming worker that consumes raw events from Kafka independently of the ingestion layer. It performs three main transformations:
                 </p>
                 <ul>
-                    <li><strong>Ingest App:</strong> Polls the ENTSO-E API hourly, parsing raw XML documents and producing events to specific Kafka topics (e.g., raw-generation-events).</li>
-                    <li><strong>Process App:</strong> Consumes raw events and enriches them with business logic, mapping EIC codes to readable country names, calculating Carbon emissions based on generation type, and standardizing time intervals.</li>
-                    <li><strong>Storage App:</strong> A sink service that consumes enriched events and persists them to CockroachDB.</li>
+                    <li><strong>Spatial Mapping:</strong> Maps alphanumeric Energy Identification Codes (EICs) to human-readable bidding zones and country data using internal configurations.</li>
+                    <li><strong>Carbon Intensity Tracking:</strong> Matches energy generation types with emission data to calculate the real-time carbon output (kgCO₂e/MWh) for each grid zone.</li>
+                    <li><strong>Temporal Standardization:</strong> Normalizes different reporting intervals (such as mixed 30-minute and 60-minute windows) into a uniform 15-minute grid by dividing and distributing metrics across standard time slices.</li>
                 </ul>
-                
                 <p>
-                    The applications run on a free Oracle VM (1GB RAM) utilizing swap space to manage memory constraints. 
-                    They do not communicate directly; instead, they rely on a Kafka cluster hosted on Confluent Cloud, ensuring the system remains decoupled and resilient.
-                </p>
-                <p>
-                    To ensure extensibility, I used an object-oriented approach. Adding a new metric (e.g., load or transmission) requires minimal boilerplate - simply creating new classes that inherit from the base ingestion logic. The business logic is backed by a pytest suite to prevent regressions during updates.
+                    Enriched events are then published back to Kafka on separate downstream topics.
                 </p>
 
-                <h2>3. Data Challenges & Solutions</h2>
-                <h3>Domain Complexity</h3>
+                <h3>3. Asynchronous Persistence Layer (Storage App)</h3>
                 <p>
-                    The energy domain is complex. Mapping EIC (Energy Identification Code) values to specific regions was difficult, as some codes represent single countries while others represent specific bidding zones or multiple countries.
-                    Furthermore, finding reliable carbon intensity factors for specific generation types required extensive research. I ensured accuracy by sourcing and citing every CO2 figure used in the mapping logic.
+                    The storage app acts as an isolated database sink, consuming messages from the enriched Kafka topics. To optimize throughput and reduce connection overhead on the relational database, it groups incoming records into batches before executing bulk database inserts. This decouples the streaming pipeline from database latency and ensures stable data throughput.
                 </p>
 
-                <h3>Scaling & Storage</h3>
+                <h2>Fault Tolerance &amp; Isolation Policy</h2>
                 <p>
-                    I initially built the persistence layer on Supabase (PostgreSQL). However, the backfilling process quickly exceeded their free-tier limits, and I had to migrate to CockroachDB, which was able to handle the full volume. As of December 2025, the database hosts over 12 million generation events and 1.8 million price events.
+                    The pipeline ensures high availability by maintaining stateless workers and isolating errors so they do not disrupt the rest of the stream.
                 </p>
 
-                <h3>Data Consistency & Idempotency</h3>
+                <h3>Stateless Design &amp; Graceful Shutdown</h3>
                 <p>
-                    The ENTSO-E API doesn't guarantee data availability for the most recent hour immediately. To handle this, the ingest app utilizes a deep backfill strategy:
+                    All applications are completely stateless, relying on Kafka to manage offsets and consumer state. If a container fails, a new instance can immediately take over without risking data loss or state corruption.
+                </p>
+                <p>
+                    During deployments, workers catch shutdown signals to safely complete active processes, flush in-memory queues, and commit consumer offsets before exiting.
+                </p>
+
+                <h3>Dead Letter Queue (DLQ) Architecture</h3>
+                <p>
+                    Instead of crashing or blocking the pipeline when encountering unexpected errors or malformed data, the system routes failed messages to separate dead letter topics for isolated troubleshooting:
                 </p>
                 <ul>
-                    <li>Every hour, it requests the last 4 hours of data.</li>
-                    <li>Every day, it performs a deep fetch of the last 3 days.</li>
+                    <li><strong>dlq-ingestion:</strong> Catches API timeouts or structural changes during ingestion, saving the request metadata for future historical backfills.</li>
+                    <li><strong>dlq-processing:</strong> Isolates validation failures or unmapped data codes (such as an unknown asset type or zone identifier) discovered during processing.</li>
+                    <li><strong>dlq-storage:</strong> Captures errors that occur right before database insertion. It encodes the raw payload in Base64 so it can be safely written to the DLQ for debugging without violating structural data contracts.</li>
                 </ul>
+
+                <h2>Temporal Resilience &amp; Idempotency Strategy</h2>
                 <p>
-                    To support this, the storage logic was designed to be idempotent. It handles duplicate data arrival, ensuring that aggressive backfilling corrects missing data without corrupting the tables.
+                    Real-time grid telemetry is often delayed, updated retroactively, or revised out of order by regional operators. The pipeline uses two mechanisms to guarantee final data correctness.
                 </p>
 
-                <h2>4. The Frontend</h2>
+                <h3>Overlapping Lookback Windows</h3>
                 <p>
-                    Visualizing the data presented an unexpected deployment challenge. I originally built comprehensive dashboards using Grafana. However, I realized that safely hosting a public Grafana instance was not feasible on a $0 budget without exposing the database to expensive, uncontrolled queries. To resolve this, I pivoted to a static dashboard architecture using GitHub Pages. 
-                </p>
-                <p>
-                    Currently, a Python script runs every 4 hours via GitHub Actions and queries against CockroachDB, before saving the results as static JSON files on a dedicated GitHub branch.
-                </p>
-                <p>
-                    To replace the Grafana dashboards, I built a custom frontend using Apache ECharts. I used AI tools to accelerate the development of the frontend, allowing me to focus on the backend. This way, I was able to create a zero-cost dashboard that updates in near real-time without any risk of expensive queries.
-                </p>
-
-                <h2>5. Future Improvements</h2>
-                <p>
-                    The project is currently functional, but, in the future, I'd like to add:
+                    Since operators rarely publish complete grid data immediately, the ingest layer runs overlapping queries to catch missing data gaps:
                 </p>
                 <ul>
-                    <li>Cross-border flows to visualise energy imports and exports.</li>
-                    <li>Energy load metrics to analyse grid stress.</li>
-                    <li>Possibly a notification service for specific grid events like negative pricing.</li>
+                    <li><strong>Hourly Lookbacks:</strong> Each hourly run queries a trailing 3-hour window to catch late-arriving metrics from lagging operators.</li>
+                    <li><strong>Daily Deep Backfills:</strong> A 72-hour sliding lookback window runs once a day to capture audited updates and retroactive corrections.</li>
                 </ul>
+
+                <h3>Database-Level Idempotency</h3>
+                <p>
+                    Because lookback windows intentionally introduce highly redundant data streams, the database enforces unique composite keys based on the zone code, metric type, and timestamp. Write operations handle conflicts by safely ignoring exact duplicates while allowing updated historical records to be refreshed.
+                </p>
+                <p>
+                    This ensures data integrity and prevents duplicate entries.
+                </p>
+
             </div>
 
             <footer style="margin-top: 80px; border-top: 1px solid var(--border-color); padding: 40px 0; text-align: center; color: var(--text-secondary);">
