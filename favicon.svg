@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="20" fill="#1a1a1a"/>
+  
+  <!-- Geometric Bolt: Scaled to match the exact height and width of a 55px JetBrains Mono '$' -->
+  <path d="M38,24 L18,52 L33,52 L27,72 L47,44 L32,44 Z" fill="#f9f9f9"/>
+  
+  <!-- Text element mirroring reference sizing and alignment -->
+  <text x="50%" y="46%" dominant-baseline="central" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="800" font-size="55" fill="#f9f9f9">
+    <tspan fill="none">$</tspan>_
+  </text>
+</svg>
