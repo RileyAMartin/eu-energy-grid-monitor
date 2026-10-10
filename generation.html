@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>European Energy Grid Monitor</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">    
+    
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <a href="index.html">
+                EU Energy Grid Monitor
+            </a>
+        </div>
+
+        <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">Overview</a>
+            <a href="process.html">System Architecture</a>
+            <a href="generation.html" class="active">Generation</a>
+            <a href="prices.html">Prices</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>
+                Energy Generation Metrics
+                <span class="info-icon" 
+                    data-tooltip="Data Source: ENTSO-E Transparency Platform. Timezone: UTC. Updates occur every 4 hours.">
+                    i
+                </span>
+            </h1>
+            <div class="controls">
+                <select id="zoneSelector" onchange="loadZoneData(this.value)">
+                    <option value="" disabled selected>Select a Region</option>
+                </select>
+                
+                <select id="timeSelector" onchange="renderCurrentData()">
+                    <option value="24" selected>Last 24 Hours</option>
+                    <option value="168">Last 7 Days</option>
+                    <option value="720">Last 30 Days</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="grid" id="dashboardContent">
+            <div class="panel" id="chart-main">
+                <div class="panel-header">
+                    <h2 id="mainTitle">Generation Mix (MW)</h2>
+                    <span class="info-icon" data-tooltip="The total energy generation (MW) across all of Europe, based on the type of generator (e.g. nuclear, hydro, etc).">i</span>
+                </div>
+                <div id="viz_generation_stack" class="chart-container"></div>
+            </div>
+
+            <div class="panel" id="chart-pie">
+                <div class="panel-header">
+                    <h2>Energy Source Distribution (MWh)</h2>
+                    <span class="info-icon right-side" data-tooltip="Total energy volume (MWh) contributed by each fuel source over the selected time period.">i</span>
+                </div>
+                <div id="viz_pie" class="chart-container"></div>
+            </div>
+
+            <div class="panel" id="chart-aggregated">
+                <div class="panel-header">
+                    <h2>Fossil Fuels vs. Clean Energy Generation (MW)</h2>
+                    <span class="info-icon" data-tooltip="A consolidated view comparing fossil-fuel generation versus clean (renewable & nuclear) generation.">i</span>
+                </div>
+                <div id="viz_aggregated" class="chart-container"></div>
+            </div>
+
+            <div class="panel" id="chart-gauge">
+                <div class="panel-header">
+                    <h2 id="gaugeTitle">Clean Energy Share</h2>
+                    <span class="info-icon right-side" data-tooltip="The percentage of current total energy production coming from clean (renewable & nuclear) sources.">i</span>
+                </div>
+                <div id="viz_gauge" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+
+<script src="load_generation_data.js" defer></script>
+<script>
+    const hamburger = document.getElementById('hamburger-btn');
+    const navLinks = document.getElementById('nav-links');
+
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('open');
+    });
+</script>
+
+</body>
+</html>
