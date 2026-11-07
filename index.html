@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>Overview | EU Energy Grid Monitor</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">    
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+</head>
+<body class="landing-page">
+    
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <a href="index.html">
+                EU Energy Grid Monitor
+            </a>
+        </div>
+        <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html" class="active">Overview</a>
+            <a href="process.html">System Architecture</a>
+            <a href="generation.html">Generation</a>
+            <a href="prices.html">Prices</a>
+        </div>
+    </nav>
+
+    <div class="landing-container">
+        <div class="landing-content">
+            <div class="hero-section">
+                <h1 class="hero-title">Real-Time European Energy Analytics</h1>
+                <p class="hero-subtitle">
+                    A high-throughput data engineering pipeline monitoring electricity generation, pricing, and (soon) cross-border flows across 30+ European countries.
+                </p>
+                
+                <div class="cta-buttons">
+                    <a href="generation.html" class="btn btn-primary">View Generation Dashboard</a>
+                    <a href="prices.html" class="btn btn-secondary">View Prices Dashboard</a>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 48px; text-align: center;">
+                <h2 style="color: #fff; margin-bottom: 16px;">About the Pipeline</h2>
+                <p style="color: var(--text-secondary); line-height: 1.6; max-width: 800px; margin: 0 auto;">
+                    The European Energy Grid Monitor is a data pipeline with an ETL architecture that processes data from the European Union's ENTSO-E API.
+                    It ingests raw XML data from the <strong>ENTSO-E Transparency Platform</strong> every hour, normalizes it via Python producers, buffers messages through <strong>Apache Kafka</strong>, and persists millions of records in a <strong>PostgreSQL</strong> database.
+                </p>
+            </div>
+
+            <div>
+                <h2 style="color: #fff; font-size: 1.2rem; margin-bottom: 24px; text-align: center;">System Architecture</h2>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="tech-title">Real-Time Monitoring</div>
+                        <div class="tech-desc">
+                            Tracks electricity generation and pricing across 30+ European countries with hourly updates.
+                        </div>
+                    </div>
+
+                    <div class="tech-card">
+                        <div class="tech-title">Carbon Intensity</div>
+                        <div class="tech-desc">
+                            Calculates real-time CO₂ emissions for each region based on generation mix and fuel type.
+                        </div>
+                    </div>
+
+                    <div class="tech-card">
+                        <div class="tech-title">Historical Analysis</div>
+                        <div class="tech-desc">
+                            Query millions of data points to analyze trends, price patterns, and grid behavior over time.
+                        </div>
+                    </div>
+
+                    <div class="tech-card">
+                        <div class="tech-title">Decoupled Architecture</div>
+                        <div class="tech-desc">
+                            Fault-tolerant microservices design ensures reliability and independent scalability of each component.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer style="margin-top: 80px; border-top: 1px solid var(--border-color); padding: 40px 0; text-align: center; color: var(--text-secondary);">
+                <p style="margin-bottom: 12px;">Built by <strong>Riley Martin</strong></p>
+                <div>
+                    <a href="https://github.com/RileyAMartin/eu-energy-grid-monitor" target="_blank" style="color: var(--accent-blue); text-decoration: none; margin: 0 12px;">GitHub Repository</a>
+                    <a href="www.linkedin.com/in/riley-martin-506756351" target="_blank" style="color: var(--accent-blue); text-decoration: none; margin: 0 12px;">LinkedIn</a>
+                </div>
+                <p style="margin-top: 24px; font-size: 0.75rem; opacity: 0.6;">
+                    Data Source: ENTSO-E Transparency Platform
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        const hamburger = document.getElementById('hamburger-btn');
+        const navLinks = document.getElementById('nav-links');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            hamburger.classList.toggle('open');
+        });
+    </script>
+</body>
+</html>
